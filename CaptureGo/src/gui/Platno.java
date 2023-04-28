@@ -53,24 +53,30 @@ public class Platno extends JPanel {
 		// top-left y
 		int tly = visinaPlatna / 2 - visina / 2 * razmikNaMrezi;
 		
-		/*
-		System.out.println(tlx);
-		System.out.println(tly);		
-		System.out.println(2 * razmikNaMrezi);
-		System.out.println(" ");
-		*/
-		
 		g2.setStroke(debelinaTest);
 		
 		// Navpične črte
 		for (int i = 0; i < sirina; i++) {
-			g2.drawLine(tlx + i * razmikNaMrezi, tly, tlx + i * razmikNaMrezi, tly + (visina - 1) * razmikNaMrezi);
+			g2.drawLine(
+				tlx + i * razmikNaMrezi,
+				tly,
+				tlx + i * razmikNaMrezi,
+				tly + (visina - 1) * razmikNaMrezi
+			);
 		}
 		
 		// Vodoravne črte
 		for (int i = 0; i < visina; i++) {
-			g2.drawLine(tlx, tly + i * razmikNaMrezi, tlx + (sirina - 1) * razmikNaMrezi, tly + i * razmikNaMrezi);
+			g2.drawLine(
+				tlx,
+				tly + i * razmikNaMrezi,
+				tlx + (sirina - 1) * razmikNaMrezi,
+				tly + i * razmikNaMrezi
+			);
 		}
+		
+		// DEBUG:
+		System.out.print(igra);
 	}
 	
 }
