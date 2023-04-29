@@ -1,6 +1,7 @@
 package gui;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -11,17 +12,33 @@ import static java.lang.Math.min;
 import javax.swing.JPanel;
 
 import logika.Igra;
+import logika.Polje;
 
 @SuppressWarnings("serial")
 public class Platno extends JPanel {
 	
 	protected Igra igra;
-	protected Stroke debelinaTest;
+	protected Stroke debelinaMreznihCrt;
+	protected Stroke debelinaRobaZetonov;
+	protected Color barvaCrnih;
+	protected Color barvaRobaCrnih;
+	protected Color barvaBelih;
+	protected Color barvaRobaBelih;
+	protected Color barvaOzadja;
+	
 	
 	public Platno(int sirina, int visina) {
 		super();		// pokliče konstruktor od JPanel
 		setPreferredSize(new Dimension(sirina, visina));
-		debelinaTest = new BasicStroke(2);
+		debelinaMreznihCrt = new BasicStroke(2);
+		debelinaRobaZetonov = new BasicStroke(3);
+		barvaCrnih = Color.BLACK;
+		barvaRobaCrnih = Color.DARK_GRAY;
+		barvaBelih = Color.WHITE;
+		barvaRobaBelih = Color.LIGHT_GRAY;
+		barvaOzadja = new Color(210, 166, 121);
+		
+		setBackground(barvaOzadja);
 	}
 
 	public void nastaviIgro(Igra igra) {
@@ -38,7 +55,6 @@ public class Platno extends JPanel {
 		int sirina = igra.sirina();
 		int visina = igra.visina();
 
-		// Mreža
 		/* Ideja je, da poračunamo širino in višino platna ter prilagodimo našo
 		 * mrežo, da paše noter, plus dodamo dva stolpca na vsaki strani za lepši izgled
 		 */
@@ -53,11 +69,13 @@ public class Platno extends JPanel {
 		// top-left y
 		int tly = visinaPlatna / 2 - visina / 2 * razmikNaMrezi;
 		
-		g2.setStroke(debelinaTest);
+		
+		// MREŽNE ČRTE
+		g2.setStroke(debelinaMreznihCrt);
 		
 		// Navpične črte
 		for (int i = 0; i < sirina; i++) {
-			g2.drawLine(
+			g.drawLine(
 				tlx + i * razmikNaMrezi,
 				tly,
 				tlx + i * razmikNaMrezi,
@@ -67,7 +85,7 @@ public class Platno extends JPanel {
 		
 		// Vodoravne črte
 		for (int i = 0; i < visina; i++) {
-			g2.drawLine(
+			g.drawLine(
 				tlx,
 				tly + i * razmikNaMrezi,
 				tlx + (sirina - 1) * razmikNaMrezi,
@@ -75,8 +93,37 @@ public class Platno extends JPanel {
 			);
 		}
 		
+		// ŽETONI NA MREŽI
+		g2.setStroke(debelinaRobaZetonov);
+		for (int i = 0; i < visina; i++) {
+			for (int j = 0; j < sirina; j++) {
+				int xZetona = zaokrozi(razmikNaMrezi * (j - 0.3333) + tlx);
+				int yZetona = zaokrozi(razmikNaMrezi * (i - 0.3333) + tly);
+				int premerZetona = zaokrozi(razmikNaMrezi * 0.6667);
+				if (igra.vrednost(j, i) == Polje.BEL) {
+					g.setColor(barvaBelih);
+					g.fillOval(xZetona, yZetona, premerZetona, premerZetona);
+					g.setColor(barvaRobaBelih);
+					g.drawOval(xZetona, yZetona, premerZetona, premerZetona);
+				}
+				else if (igra.vrednost(j, i) == Polje.CRN) {
+					g.setColor(barvaCrnih);
+					g.fillOval(xZetona, yZetona, premerZetona, premerZetona);
+					g.setColor(barvaRobaCrnih);
+					g.drawOval(xZetona, yZetona, premerZetona, premerZetona);
+				}
+			}
+		}
+		
+		
+		
 		// DEBUG:
-		System.out.print(igra);
+		System.out.println(igra);
 	}
+	
+	private int zaokrozi(double x) {
+		return (int)(x + 0.5);
+	}
+	
 	
 }
