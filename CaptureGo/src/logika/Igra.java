@@ -40,6 +40,8 @@ public class Igra {
 		return visina;
 	}
 	
+	public Polje vrednost(int x, int y) {return tabela[y][x];}
+	
 	@Override
 	public String toString() {
 		String prikaz = "";
