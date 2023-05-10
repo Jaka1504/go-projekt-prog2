@@ -5,10 +5,18 @@ import splosno.Poteza;
 
 
 public class Igra {
+	public enum BarvaIgralca {
+		CRNI, BELI;
+		
+		public static BarvaIgralca obrni(BarvaIgralca barva) {
+			if (barva == CRNI) return BELI;
+			else return CRNI;
+		}
+	}
 	
 	protected KdoIgra crni;
 	protected KdoIgra beli;
-	protected boolean naPotezi; // false če je črni, true če je beli
+	protected BarvaIgralca naPotezi;
 	protected int sirina;
 	protected int visina;
 	protected Polje[][] tabela;
@@ -16,7 +24,7 @@ public class Igra {
 	public Igra(int sirina, int visina) {
 		crni = new KdoIgra("crni");
 		beli = new KdoIgra("beli");
-		naPotezi = false; // začne črni => false
+		naPotezi = BarvaIgralca.CRNI; // začne črni
 		this.sirina = sirina;
 		this.visina = visina;
 		tabela = new Polje[visina][sirina];
@@ -68,9 +76,9 @@ public class Igra {
 	// Poskusi odigrati potezo, vrne true če mu to uspe, false sicer
 	public boolean odigraj(Poteza poteza) {
 		if (tabela[poteza.y()][poteza.x()] == Polje.PRAZNO) {
-			if (naPotezi) tabela[poteza.y()][poteza.x()] = Polje.BEL;
+			if (naPotezi == BarvaIgralca.BELI) tabela[poteza.y()][poteza.x()] = Polje.BEL;
 			else tabela[poteza.y()][poteza.x()] = Polje.CRN;
-			naPotezi = !naPotezi;
+			naPotezi = BarvaIgralca.obrni(naPotezi);
 			return true;
 		}
 		else return false;
