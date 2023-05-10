@@ -1,5 +1,10 @@
 package logika;
 
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Set;
+
 import splosno.KdoIgra;
 import splosno.Poteza;
 
@@ -14,11 +19,17 @@ public class Igra {
 		}
 	}
 	
+	public enum Stanje {
+		ZMAGA_CRNI, ZMAGA_BELI, NEODLOCENO, V_TEKU
+	}
+	
+	
 	protected KdoIgra crni;
 	protected KdoIgra beli;
 	protected BarvaIgralca naPotezi;
 	protected int sirina;
 	protected int visina;
+	protected Stanje stanje;
 	protected Polje[][] tabela;
 	
 	public Igra(int sirina, int visina) {
@@ -27,6 +38,7 @@ public class Igra {
 		naPotezi = BarvaIgralca.CRNI; // začne črni
 		this.sirina = sirina;
 		this.visina = visina;
+		stanje = Stanje.V_TEKU;
 		tabela = new Polje[visina][sirina];
 		for (int i = 0; i < visina; i++) {
 			for (int j = 0 ; j < sirina; j++) {
@@ -53,6 +65,12 @@ public class Igra {
 	}
 	
 	public Polje vrednost(int x, int y) {return tabela[y][x];}
+	
+	public Polje vrednost(Poteza koordinate) {
+		int x = koordinate.x();
+		int y = koordinate.y();
+		return vrednost(x, y);
+	}
 	
 	@Override
 	public String toString() {
@@ -86,6 +104,71 @@ public class Igra {
 			return true;
 		}
 		else return false;
+	}
+	
+	public Stanje stanje() {
+		// vrne stanje v katerem je igra
+		return stanje;
+	}
+	
+	
+	public Set<Poteza> skupinaZetona(int x, int y) {
+		Set<Poteza> skupina = new HashSet<Poteza>();
+		Polje polje = vrednost(x, y);
+		switch (polje) {
+		case PRAZNO:
+			break;
+		case BEL:
+		case CRN:
+			Queue<Poteza> zaObdelavo = new LinkedList<Poteza>();
+			skupina.add(new Poteza(x, y));
+			zaObdelavo.add(new Poteza(x, y));
+			while (true) {
+				if (zaObdelavo.isEmpty()) break;
+				else {
+					Poteza osrednjePolje = zaObdelavo.poll();
+					skupina.add(osrednjePolje);
+					System.out.println(skupina);
+					int x0 = osrednjePolje.x();
+					int y0 = osrednjePolje.y();
+					for (Poteza koordinateSosednjegaPolja : sosedi(x0, y0)) { 
+						Polje sosednjePolje = vrednost(koordinateSosednjegaPolja);
+						if (sosednjePolje == polje && !skupina.contains(koordinateSosednjegaPolja)) {
+							zaObdelavo.add(koordinateSosednjegaPolja);
+						}
+					}
+				}
+			}
+		}
+		System.out.println(skupina);
+		return skupina;
+	}
+	
+	public int steviloSvobodSkupine(Set<Poteza> skupina) {
+		Set<Poteza> svobode = new HashSet<Poteza>();
+		for (Poteza koordinateZetona : skupina) {
+			int x = koordinateZetona.x();
+			int y = koordinateZetona.y();
+			for (Poteza koordinateSoseda : sosedi(x, y)) {
+				if (vrednost(koordinateSoseda) == Polje.PRAZNO) svobode.add(koordinateSoseda);
+			}
+		}
+		return svobode.size();		
+	}
+	
+	private Set<Poteza> sosedi(int x, int y) {
+		Set<Poteza> sosednjaPolja = new HashSet<Poteza>();
+		for (int dx = -1; dx <= 1; dx += 1) {
+			int[] moznostiZaDy = new int[2];
+			if (dx == 0) {moznostiZaDy = new int[] {-1, 1};}
+			else {moznostiZaDy = new int[] {0};}
+			for (int dy : moznostiZaDy) {
+				if (0 <= x + dx && x + dx < sirina && 0 <= y + dy && y + dy < visina) {
+					sosednjaPolja.add(new Poteza(x + dx, y + dy));
+				}
+			}
+		}
+		return sosednjaPolja;
 	}
 	
 }

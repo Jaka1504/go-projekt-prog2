@@ -5,7 +5,7 @@ import logika.Igra;
 public class Test {
 
 	public static void main(String[] args) {
-		System.out.print("Testiram");
+		System.out.println("Testiram");
 		Okno okno = new Okno();
 		Igra igra = new Igra(9, 9);
 		okno.platno().nastaviIgro(igra);
@@ -15,6 +15,8 @@ public class Test {
 		Inteligenca random = new Inteligenca();
 		
 		for (int i = 0; i < 60; i++) igra.odigraj(random.izberiPotezo(igra));
+		
+		System.out.println(igra.steviloSvobodSkupine(igra.skupinaZetona(4, 4)));
 	}
 
 }
