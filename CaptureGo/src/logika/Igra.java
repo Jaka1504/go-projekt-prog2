@@ -48,6 +48,10 @@ public class Igra {
 		return visina;
 	}
 	
+	public BarvaIgralca naPotezi() {
+		return naPotezi;
+	}
+	
 	public Polje vrednost(int x, int y) {return tabela[y][x];}
 	
 	@Override
