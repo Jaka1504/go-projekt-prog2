@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
-import splosno.KdoIgra;
 import splosno.Poteza;
 
 
@@ -20,12 +19,9 @@ public class Igra {
 	}
 	
 	public enum Stanje {
-		ZMAGA_CRNI, ZMAGA_BELI, NEODLOCENO, V_TEKU
+		ZMAGA_CRNI, ZMAGA_BELI, V_TEKU
 	}
 	
-	
-	protected KdoIgra crni;
-	protected KdoIgra beli;
 	protected BarvaIgralca naPotezi;
 	protected int sirina;
 	protected int visina;
@@ -33,8 +29,6 @@ public class Igra {
 	protected Polje[][] tabela;
 	
 	public Igra(int sirina, int visina) {
-		crni = new KdoIgra("crni");
-		beli = new KdoIgra("beli");
 		naPotezi = BarvaIgralca.CRNI; // začne črni
 		this.sirina = sirina;
 		this.visina = visina;
@@ -92,14 +86,53 @@ public class Igra {
 				}
 			prikaz += "\n";
 			}
+		prikaz += "Stanje: ";
+		switch (stanje) {
+		case ZMAGA_BELI:
+			prikaz += "zmaga beli";
+			break;
+		case V_TEKU:
+			prikaz += "v teku";
+			break;
+		case ZMAGA_CRNI:
+			prikaz += "zmaga crni";
+			break;
+		}
 		return prikaz;
 	}
 	
 	// Poskusi odigrati potezo, vrne true če mu to uspe, false sicer
 	public boolean odigraj(Poteza poteza) {
-		if (tabela[poteza.y()][poteza.x()] == Polje.PRAZNO) {
-			if (naPotezi == BarvaIgralca.BELI) tabela[poteza.y()][poteza.x()] = Polje.BEL;
-			else tabela[poteza.y()][poteza.x()] = Polje.CRN;
+		int x = poteza.x();
+		int y = poteza.y();
+		if (tabela[y][x] == Polje.PRAZNO && stanje == Stanje.V_TEKU) {
+			// Postavi žeton
+			Polje barvaZaNovZeton = (naPotezi == BarvaIgralca.BELI) ? Polje.BEL : Polje.CRN;
+			tabela[y][x] = barvaZaNovZeton;
+			
+			// Preveri ce je kdo zmagal
+			boolean igralecNaPoteziIzgubil = false;
+			boolean drugIgralecIzgubil = false;
+			for (Poteza koordinateSoseda : sosedi(x, y)) {
+				Polje barvaSoseda = vrednost(koordinateSoseda);
+				if (barvaSoseda != Polje.PRAZNO) {
+					if (steviloSvobodSkupine(skupinaZetona(koordinateSoseda)) == 0) {
+						if (barvaZaNovZeton == barvaSoseda) igralecNaPoteziIzgubil = true;
+						else drugIgralecIzgubil = true;
+					}
+				}
+			}
+			if (steviloSvobodSkupine(skupinaZetona(poteza)) == 0) igralecNaPoteziIzgubil = true;
+			if (drugIgralecIzgubil) {
+				if (naPotezi == BarvaIgralca.CRNI) stanje = Stanje.ZMAGA_CRNI;
+				else stanje = Stanje.ZMAGA_BELI;
+			}
+			else if (igralecNaPoteziIzgubil) {
+				if (naPotezi == BarvaIgralca.CRNI) stanje = Stanje.ZMAGA_BELI;
+				else stanje = Stanje.ZMAGA_CRNI;
+			}
+								
+			// Preda potezo
 			naPotezi = BarvaIgralca.obrni(naPotezi);
 			return true;
 		}
@@ -128,7 +161,8 @@ public class Igra {
 				else {
 					Poteza osrednjePolje = zaObdelavo.poll();
 					skupina.add(osrednjePolje);
-					System.out.println(skupina);
+					// DEBUG
+					// System.out.println(skupina);
 					int x0 = osrednjePolje.x();
 					int y0 = osrednjePolje.y();
 					for (Poteza koordinateSosednjegaPolja : sosedi(x0, y0)) { 
@@ -140,9 +174,18 @@ public class Igra {
 				}
 			}
 		}
-		System.out.println(skupina);
+		// DEBUG
+		// System.out.println(skupina);
 		return skupina;
 	}
+	
+	
+	public Set<Poteza> skupinaZetona(Poteza koordinate) {
+		int x = koordinate.x();
+		int y = koordinate.y();
+		return skupinaZetona(x, y);
+	}
+	
 	
 	public int steviloSvobodSkupine(Set<Poteza> skupina) {
 		Set<Poteza> svobode = new HashSet<Poteza>();
@@ -159,7 +202,7 @@ public class Igra {
 	private Set<Poteza> sosedi(int x, int y) {
 		Set<Poteza> sosednjaPolja = new HashSet<Poteza>();
 		for (int dx = -1; dx <= 1; dx += 1) {
-			int[] moznostiZaDy = new int[2];
+			int[] moznostiZaDy;
 			if (dx == 0) {moznostiZaDy = new int[] {-1, 1};}
 			else {moznostiZaDy = new int[] {0};}
 			for (int dy : moznostiZaDy) {
