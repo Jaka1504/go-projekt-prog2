@@ -39,11 +39,25 @@ public class Igra {
 				tabela[i][j] = Polje.PRAZNO;
 			}
 		}
-		
 	}
 	
 	public Igra() {
 		this(9, 9);
+	}
+	
+	public Igra(Igra igra) {
+		// globoka kopija igre
+		this.naPotezi = igra.naPotezi;
+		this.sirina = igra.sirina;
+		this.visina = igra.visina;
+		this.stanje = igra.stanje;
+		this.tabela = new Polje[visina][sirina];
+		for (int i = 0; i < visina; i++) {
+			for (int j = 0 ; j < sirina; j++) {
+				this.tabela[i][j] = igra.tabela[i][j];
+			}
+		}
+		
 	}
 	
 	public int sirina() {
@@ -60,7 +74,7 @@ public class Igra {
 	
 	public Polje vrednost(int x, int y) {return tabela[y][x];}
 	
-	public Polje vrednost(Poteza koordinate) {
+	public Polje vrednost(Koordinate koordinate) {
 		int x = koordinate.x();
 		int y = koordinate.y();
 		return vrednost(x, y);
@@ -105,7 +119,8 @@ public class Igra {
 	public boolean odigraj(Poteza poteza) {
 		int x = poteza.x();
 		int y = poteza.y();
-		if (tabela[y][x] == Polje.PRAZNO && stanje == Stanje.V_TEKU) {
+		Koordinate koordinate = new Koordinate(x, y);
+		if (vrednost(koordinate) == Polje.PRAZNO && stanje == Stanje.V_TEKU) {
 			// Postavi žeton
 			Polje barvaZaNovZeton = (naPotezi == BarvaIgralca.BELI) ? Polje.BEL : Polje.CRN;
 			tabela[y][x] = barvaZaNovZeton;
@@ -113,7 +128,7 @@ public class Igra {
 			// Preveri ce je kdo zmagal
 			boolean igralecNaPoteziIzgubil = false;
 			boolean drugIgralecIzgubil = false;
-			for (Poteza koordinateSoseda : sosedi(x, y)) {
+			for (Koordinate koordinateSoseda : sosedi(koordinate)) {
 				Polje barvaSoseda = vrednost(koordinateSoseda);
 				if (barvaSoseda != Polje.PRAZNO) {
 					if (steviloSvobodSkupine(skupinaZetona(koordinateSoseda)) == 0) {
@@ -122,7 +137,7 @@ public class Igra {
 					}
 				}
 			}
-			if (steviloSvobodSkupine(skupinaZetona(poteza)) == 0) igralecNaPoteziIzgubil = true;
+			if (steviloSvobodSkupine(skupinaZetona(koordinate)) == 0) igralecNaPoteziIzgubil = true;
 			if (drugIgralecIzgubil) {
 				if (naPotezi == BarvaIgralca.CRNI) stanje = Stanje.ZMAGA_CRNI;
 				else stanje = Stanje.ZMAGA_BELI;
@@ -145,27 +160,27 @@ public class Igra {
 	}
 	
 	
-	public Set<Poteza> skupinaZetona(int x, int y) {
-		Set<Poteza> skupina = new HashSet<Poteza>();
+	public Set<Koordinate> skupinaZetona(Koordinate koordinate) {
+		int x = koordinate.x();
+		int y = koordinate.y();
+		Set<Koordinate> skupina = new HashSet<Koordinate>();
 		Polje polje = vrednost(x, y);
 		switch (polje) {
 		case PRAZNO:
 			break;
 		case BEL:
 		case CRN:
-			Queue<Poteza> zaObdelavo = new LinkedList<Poteza>();
-			skupina.add(new Poteza(x, y));
-			zaObdelavo.add(new Poteza(x, y));
+			Queue<Koordinate> zaObdelavo = new LinkedList<Koordinate>();
+			skupina.add(new Koordinate(x, y));
+			zaObdelavo.add(new Koordinate(x, y));
 			while (true) {
 				if (zaObdelavo.isEmpty()) break;
 				else {
-					Poteza osrednjePolje = zaObdelavo.poll();
+					Koordinate osrednjePolje = zaObdelavo.poll();
 					skupina.add(osrednjePolje);
 					// DEBUG
 					// System.out.println(skupina);
-					int x0 = osrednjePolje.x();
-					int y0 = osrednjePolje.y();
-					for (Poteza koordinateSosednjegaPolja : sosedi(x0, y0)) { 
+					for (Koordinate koordinateSosednjegaPolja : sosedi(osrednjePolje)) { 
 						Polje sosednjePolje = vrednost(koordinateSosednjegaPolja);
 						if (sosednjePolje == polje && !skupina.contains(koordinateSosednjegaPolja)) {
 							zaObdelavo.add(koordinateSosednjegaPolja);
@@ -180,34 +195,27 @@ public class Igra {
 	}
 	
 	
-	public Set<Poteza> skupinaZetona(Poteza koordinate) {
-		int x = koordinate.x();
-		int y = koordinate.y();
-		return skupinaZetona(x, y);
-	}
-	
-	
-	public int steviloSvobodSkupine(Set<Poteza> skupina) {
-		Set<Poteza> svobode = new HashSet<Poteza>();
-		for (Poteza koordinateZetona : skupina) {
-			int x = koordinateZetona.x();
-			int y = koordinateZetona.y();
-			for (Poteza koordinateSoseda : sosedi(x, y)) {
+	public int steviloSvobodSkupine(Set<Koordinate> skupina) {
+		Set<Koordinate> svobode = new HashSet<Koordinate>();
+		for (Koordinate koordinateZetona : skupina) {
+			for (Koordinate koordinateSoseda : sosedi(koordinateZetona)) {
 				if (vrednost(koordinateSoseda) == Polje.PRAZNO) svobode.add(koordinateSoseda);
 			}
 		}
 		return svobode.size();		
 	}
 	
-	private Set<Poteza> sosedi(int x, int y) {
-		Set<Poteza> sosednjaPolja = new HashSet<Poteza>();
+	private Set<Koordinate> sosedi(Koordinate koordinate) {
+		int x = koordinate.x();
+		int y = koordinate.y();
+		Set<Koordinate> sosednjaPolja = new HashSet<Koordinate>();
 		for (int dx = -1; dx <= 1; dx += 1) {
 			int[] moznostiZaDy;
 			if (dx == 0) {moznostiZaDy = new int[] {-1, 1};}
 			else {moznostiZaDy = new int[] {0};}
 			for (int dy : moznostiZaDy) {
 				if (0 <= x + dx && x + dx < sirina && 0 <= y + dy && y + dy < visina) {
-					sosednjaPolja.add(new Poteza(x + dx, y + dy));
+					sosednjaPolja.add(new Koordinate(x + dx, y + dy));
 				}
 			}
 		}
