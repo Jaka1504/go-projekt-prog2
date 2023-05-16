@@ -9,6 +9,8 @@ import java.awt.Stroke;
 
 import static java.lang.Math.min;
 
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 
 import logika.Igra;

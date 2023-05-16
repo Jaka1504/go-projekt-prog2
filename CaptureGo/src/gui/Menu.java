@@ -19,12 +19,12 @@ public class Menu extends JMenuBar {
 	    igralec.add(menuItem2);
 	    menuIgralec.add(igralec);
 	    menuIgralec.addSeparator(); // line to separate different items types
-	    JRadioButtonMenuItem menuItem5 = new JRadioButtonMenuItem("files");
+	    JRadioButtonMenuItem menuItem5 = new JRadioButtonMenuItem("Algoritem");
 	    menuIgralec.add(menuItem5);
 	    
-	    JMenuItem menuItem3 = new JMenuItem("text");
+	    JMenuItem menuItem3 = new JMenuItem("Barve žetonov");
 	    menuVmesnik.add(menuItem3);
-	    JMenuItem menuItem4 = new JMenuItem("text2");
+	    JMenuItem menuItem4 = new JMenuItem("Barva plošče");
 	    menuVmesnik.add(menuItem4);
 	    
 	    add(menuIgralec); 
