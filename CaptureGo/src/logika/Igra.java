@@ -222,4 +222,16 @@ public class Igra {
 		return sosednjaPolja;
 	}
 	
+	
+	public Queue<Poteza> moznePoteze() {
+		Queue<Poteza> moznosti = new LinkedList<Poteza>();
+		for (int x = 0; x < sirina; x++) {
+			for (int y = 0 ; y < visina; y++) {
+				if (vrednost(x, y) == Polje.PRAZNO) moznosti.add(new Poteza(x, y));
+			}
+		}
+		return moznosti;
+	}
+	
+	
 }

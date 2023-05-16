@@ -46,11 +46,16 @@ public class Vodja {
 
 	public static void igrajRacunalnikovoPotezo() {
 		// Kao razmišljanje
+		
+		/*
 		try {
 			Thread.sleep(300);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		
+		*/
+		
 		igra.odigraj(inteligenca.izberiPotezo(igra));
 		okno.repaint();
 		igramo();
