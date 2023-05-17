@@ -120,7 +120,7 @@ public class Platno extends JPanel {
 		
 		
 		// DEBUG:
-		System.out.println(igra);
+		// System.out.println(igra);
 	}
 	
 	private int zaokrozi(double x) {

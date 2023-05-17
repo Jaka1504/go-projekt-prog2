@@ -1,9 +1,12 @@
 package vodja;
 
+import java.util.EnumMap;
 import java.util.Map;
 
 import gui.Okno;
+import inteligenca.Inteligenca;
 import logika.Igra;
+import splosno.Poteza;
 
 public class Vodja {
 	public enum VrstaIgralca {CLOVEK, RACUNALNIK}
@@ -12,18 +15,22 @@ public class Vodja {
 	public static Okno okno;
 	public static Igra igra = null;
 	public static boolean clovekNaVrsti = false;
+	public static Inteligenca inteligenca = new Inteligenca();
+	
 	
 	public static void ustvariNovoIgro() {
 		igra = new Igra();
+		okno.platno().nastaviIgro(igra);
+		vrstiIgralcev = new EnumMap<Igra.BarvaIgralca, VrstaIgralca>(Igra.BarvaIgralca.class);
+		vrstiIgralcev.put(Igra.BarvaIgralca.BELI, VrstaIgralca.RACUNALNIK);
+		vrstiIgralcev.put(Igra.BarvaIgralca.CRNI, VrstaIgralca.RACUNALNIK);
 		igramo();
 	}
 	
 	public static void igramo() {
 		// Ce je igra se v teku, poklice racunalnikovo potezo ali
 		// nastavi clovekNaVrsti na true
-		if (true) {
-			
-			//TODO spremeni na ce je igra v teku
+		if (igra.stanje() == Igra.Stanje.V_TEKU) {
 			Igra.BarvaIgralca naPotezi = igra.naPotezi();
 			VrstaIgralca vrstaNaPotezi = vrstiIgralcev.get(naPotezi);
 			switch(vrstaNaPotezi) {
@@ -33,15 +40,32 @@ public class Vodja {
 			case CLOVEK:
 				clovekNaVrsti = true;
 				break;
-			}
-			
+			}	
 		}
-		
 	}
 
 	public static void igrajRacunalnikovoPotezo() {
-		// TODO Auto-generated method stub
+		// Kao razmišljanje
 		
+		/*
+		try {
+			Thread.sleep(300);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		*/
+		
+		igra.odigraj(inteligenca.izberiPotezo(igra));
+		okno.repaint();
+		igramo();
 	}
 	
+	public static void igrajClovekovoPotezo(Poteza poteza) {
+		if (igra.odigraj(poteza)) {
+			okno.repaint();
+			clovekNaVrsti = false;
+			igramo ();
+		}
+	}
 }
