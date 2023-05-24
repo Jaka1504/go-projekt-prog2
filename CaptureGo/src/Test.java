@@ -13,7 +13,6 @@ public class Test {
 		okno.pack();				// sestavi okno
 		okno.setVisible(true);		// pokaze okno
 		Vodja.okno = okno;
-		Vodja.ustvariNovoIgro();
 		
 		/*
 		Inteligenca random = new Inteligenca();

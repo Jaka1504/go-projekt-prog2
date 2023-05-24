@@ -31,7 +31,7 @@ public class Menu extends JMenuBar implements ActionListener{
 	    igraClovekRacunalnik.addActionListener(this);
 	    igraRacunalnikClovek = new JMenuItem("Začne Računalnik");
 	    igraCloRac.add(igraRacunalnikClovek);
-	    igraClovekRacunalnik.addActionListener(this);
+	    igraRacunalnikClovek.addActionListener(this);
 	    menuIgra.add(igraCloRac);
 	    
 	    igraClovekClovek = new JMenuItem("Človek - Človek");
@@ -56,14 +56,14 @@ public class Menu extends JMenuBar implements ActionListener{
         if (e.getSource() == igraClovekRacunalnik) {
             Vodja.vrstiIgralcev =
             		new EnumMap<Igra.BarvaIgralca, VrstaIgralca>(Igra.BarvaIgralca.class);
-            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.BELI, VrstaIgralca.CLOVEK);
-            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.CRNI, VrstaIgralca.RACUNALNIK);
+            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.CRNI, VrstaIgralca.CLOVEK);
+            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.BELI, VrstaIgralca.RACUNALNIK);
             Vodja.ustvariNovoIgro();
         } else if (e.getSource() == igraRacunalnikClovek) { 
             Vodja.vrstiIgralcev =
             		new EnumMap<Igra.BarvaIgralca, VrstaIgralca>(Igra.BarvaIgralca.class);
-            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.BELI, VrstaIgralca.RACUNALNIK);
-            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.CRNI, VrstaIgralca.CLOVEK);
+            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.CRNI, VrstaIgralca.RACUNALNIK);
+            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.BELI, VrstaIgralca.CLOVEK);
             Vodja.ustvariNovoIgro();
         } else if (e.getSource() == igraClovekClovek) { 
             Vodja.vrstiIgralcev =

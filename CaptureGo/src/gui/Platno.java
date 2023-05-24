@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import static java.lang.Math.min;
 
@@ -15,9 +17,11 @@ import javax.swing.JPanel;
 
 import logika.Igra;
 import logika.Polje;
+import splosno.Poteza;
+import vodja.Vodja;
 
 @SuppressWarnings("serial")
-public class Platno extends JPanel {
+public class Platno extends JPanel implements MouseListener {
 	
 	protected Igra igra;
 	protected Stroke debelinaMreznihCrt;
@@ -39,12 +43,14 @@ public class Platno extends JPanel {
 		barvaBelih = Color.WHITE;
 		barvaRobaBelih = Color.LIGHT_GRAY;
 		barvaOzadja = new Color(210, 166, 121);
+		this.addMouseListener(this);
 		
 		setBackground(barvaOzadja);
 	}
 
 	public void nastaviIgro(Igra igra) {
 		this.igra = igra;
+		
 	}
 	
 	@Override
@@ -52,6 +58,7 @@ public class Platno extends JPanel {
 		super.paintComponent(g);
 		if (igra == null) return;
 		Graphics2D g2 = (Graphics2D) g;
+		
 		int sirinaPlatna = this.getSize().width;
 		int visinaPlatna = this.getSize().height;
 		int sirina = igra.sirina();
@@ -126,6 +133,49 @@ public class Platno extends JPanel {
 	private int zaokrozi(double x) {
 		return (int)(x + 0.5);
 	}
-	
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		if (Vodja.clovekNaVrsti) {
+			int x_ = e.getX();
+			int y_ = e.getY();
+			
+			int sirinaPlatna = this.getSize().width;
+			int visinaPlatna = this.getSize().height;
+			int sirina = igra.sirina();
+			int visina = igra.visina();
+			int razmikNaMrezi = min(
+					sirinaPlatna / (sirina + 4),
+					visinaPlatna / (visina + 4)
+				);
+			int tlx = sirinaPlatna / 2 - sirina / 2 * razmikNaMrezi;
+			int tly = visinaPlatna / 2 - visina / 2 * razmikNaMrezi;
+			
+			double x = (x_ - tlx + 0.5 * razmikNaMrezi); 		//To bo od 0 do 10 * razmikNaMreži
+			double y = y_ - tly + 0.5 * razmikNaMrezi;			//To bo tudi od 0 do 10 * razmikNaMreži
+			if (x >= 0 && x < sirina * razmikNaMrezi && y >= 0 && y < visina * razmikNaMrezi); {
+				int i = (int) (x - x % razmikNaMrezi) / razmikNaMrezi;
+				int j = (int) (y - y % razmikNaMrezi) / razmikNaMrezi;
+				Poteza poteza = new Poteza(i,j);
+				Vodja.igrajClovekovoPotezo(poteza);
+			}
+		}
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {	
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {	
+	}
 	
 }
