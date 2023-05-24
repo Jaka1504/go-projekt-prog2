@@ -2,6 +2,7 @@ package logika;
 
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
@@ -27,7 +28,9 @@ public class Igra {
 	protected int visina;
 	protected Stanje stanje;
 	protected Polje[][] tabela;
-	
+	protected DisjointSets<Koordinate> crneSkupine;
+	protected DisjointSets<Koordinate> beleSkupine;
+
 	public Igra(int sirina, int visina) {
 		naPotezi = BarvaIgralca.CRNI; // začne črni
 		this.sirina = sirina;
@@ -39,6 +42,9 @@ public class Igra {
 				tabela[i][j] = Polje.PRAZNO;
 			}
 		}
+		crneSkupine = new ListSets<Koordinate>();
+		beleSkupine = new ListSets<Koordinate>();
+
 	}
 	
 	public Igra() {
@@ -57,11 +63,21 @@ public class Igra {
 				this.tabela[i][j] = igra.tabela[i][j];
 			}
 		}
+		this.crneSkupine = igra.crneSkupine.deepCopy();
+		this.beleSkupine = igra.beleSkupine.deepCopy();
 		
 	}
 	
 	public int sirina() {
 		return sirina;
+	}
+	
+	public DisjointSets<Koordinate> beleSkupine() {
+		return beleSkupine;
+	}
+	
+	public DisjointSets<Koordinate> crneSkupine() {
+		return crneSkupine;
 	}
 	
 	public int visina() {
@@ -124,6 +140,24 @@ public class Igra {
 			// Postavi žeton
 			Polje barvaZaNovZeton = (naPotezi == BarvaIgralca.BELI) ? Polje.BEL : Polje.CRN;
 			tabela[y][x] = barvaZaNovZeton;
+			
+			//Posodobi skupine
+			if (vrednost(koordinate) == Polje.CRN ) {
+				crneSkupine.add(koordinate);
+				for (Koordinate sosed : sosedi(koordinate)) {
+					if (vrednost(sosed) == vrednost(koordinate)) {
+						crneSkupine.union(koordinate, sosed);
+					}
+				}
+			}
+			if (vrednost(koordinate) == Polje.BEL ) {
+				beleSkupine.add(koordinate);
+				for (Koordinate sosed : sosedi(koordinate)) {
+					if (vrednost(sosed) == vrednost(koordinate)) {
+						beleSkupine.union(koordinate, sosed);
+					}
+				}
+			}
 			
 			// Preveri ce je kdo zmagal
 			boolean igralecNaPoteziIzgubil = false;
@@ -194,8 +228,19 @@ public class Igra {
 		return skupina;
 	}
 	
-	
+	//na set
 	public int steviloSvobodSkupine(Set<Koordinate> skupina) {
+		Set<Koordinate> svobode = new HashSet<Koordinate>();
+		for (Koordinate koordinateZetona : skupina) {
+			for (Koordinate koordinateSoseda : sosedi(koordinateZetona)) {
+				if (vrednost(koordinateSoseda) == Polje.PRAZNO) svobode.add(koordinateSoseda);
+			}
+		}
+		return svobode.size();
+	}
+
+	//na list
+	public int steviloSvobodSkupine(List<Koordinate> skupina) {
 		Set<Koordinate> svobode = new HashSet<Koordinate>();
 		for (Koordinate koordinateZetona : skupina) {
 			for (Koordinate koordinateSoseda : sosedi(koordinateZetona)) {

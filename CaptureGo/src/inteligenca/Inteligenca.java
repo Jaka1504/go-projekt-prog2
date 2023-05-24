@@ -1,10 +1,12 @@
 package inteligenca;
 
+import java.util.List;
 import java.util.Random;
 
 import logika.Igra;
 import logika.Igra.BarvaIgralca;
 import logika.Igra.Stanje;
+import logika.Koordinate;
 import logika.Polje;
 import splosno.KdoIgra;
 import splosno.Poteza;
@@ -48,6 +50,21 @@ public class Inteligenca extends KdoIgra{
 			ocena += 1000;
 			break;
 		}
+		
+		//Prestejemo svobode
+		int odbitekCrneSvobode = 0;
+		for (List<Koordinate> seznam : igra.crneSkupine() ) {
+			int steviloSvobod = Math.max(igra.steviloSvobodSkupine(seznam), 4);
+			odbitekCrneSvobode += - 20 / (steviloSvobod + 1);
+		}
+		ocena += odbitekCrneSvobode / igra.crneSkupine().numSets();
+		
+		int odbitekBeleSvobode = 0;
+		for (List<Koordinate> seznam : igra.beleSkupine() ) {
+			int steviloSvobod = Math.max(igra.steviloSvobodSkupine(seznam), 4);
+			odbitekBeleSvobode += 20 / (steviloSvobod + 1);
+		}
+		ocena += odbitekBeleSvobode / igra.beleSkupine().numSets();
 		
 		// Nocemo prevec zetonov na robu
 		for (int x = 0; x < igra.sirina(); x++) {

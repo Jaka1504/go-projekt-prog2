@@ -21,9 +21,6 @@ public class Vodja {
 	public static void ustvariNovoIgro() {
 		igra = new Igra();
 		okno.platno().nastaviIgro(igra);
-		vrstiIgralcev = new EnumMap<Igra.BarvaIgralca, VrstaIgralca>(Igra.BarvaIgralca.class);
-		vrstiIgralcev.put(Igra.BarvaIgralca.BELI, VrstaIgralca.RACUNALNIK);
-		vrstiIgralcev.put(Igra.BarvaIgralca.CRNI, VrstaIgralca.RACUNALNIK);
 		igramo();
 	}
 	
@@ -57,13 +54,13 @@ public class Vodja {
 		*/
 		
 		igra.odigraj(inteligenca.izberiPotezo(igra));
-		okno.repaint();
+		okno.platno().repaint();
 		igramo();
 	}
 	
 	public static void igrajClovekovoPotezo(Poteza poteza) {
 		if (igra.odigraj(poteza)) {
-			okno.repaint();
+			okno.platno().repaint();
 			clovekNaVrsti = false;
 			igramo ();
 		}
