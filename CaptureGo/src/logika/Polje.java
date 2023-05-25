@@ -4,6 +4,7 @@ public enum Polje {
 	BEL, CRN, PRAZNO;
 
 	public Polje obrni() {
+		// Vrne obratno barvo žetona
 		switch (this) {
 		case BEL:
 			return CRN;

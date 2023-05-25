@@ -22,31 +22,15 @@ public class Inteligenca extends KdoIgra{
 	}
 	
 	public Poteza izberiPotezo(Igra igra) {
-		// tukaj nastavis, kako globoko gre minimax
-		// System.out.println("Racunalnik grunta");
+		// Poišče najustreznejšo potezo za dano igro
 		OcenjenaPoteza najboljsaPoteza = oceniMinimaxAlfaBeta(igra, 4);
-		/*
-		System.out.println(igra);
-		System.out.print(najboljsaPoteza.poteza.x());
-		System.out.print(", ");
-		System.out.print(najboljsaPoteza.poteza.y());
-		System.out.print(" -> ");
-		System.out.println(najboljsaPoteza.ocena);
-		*/
 		return najboljsaPoteza.poteza;
 	}
 
-	private Poteza nakljucnaPoteza(Igra igra) {
-		Random rng = new Random();
-		for (int i = 0; i < 1000; i++) {
-			int x = rng.nextInt(0, igra.sirina());
-			int y = rng.nextInt(0, igra.visina());
-			if (igra.vrednost(x, y) == Polje.PRAZNO) return new Poteza(x, y);
-		}
-		return null;
-	}
-	
 	private int oceniPolozaj(Igra igra) {
+		// Dani igri pripiše celoštevilsko vrednost, ki je tem višja, tem
+		// boljši je položaj črnega igralca.
+		
 		int ocena = 0;
 		
 		// Ce je igre konec, bogato nagradimo zmagovalca
@@ -71,7 +55,7 @@ public class Inteligenca extends KdoIgra{
 			}
 			odbitekCrneSvobode += - 50 / (steviloSvobod + 1);
 		}
-		ocena += odbitekCrneSvobode; // / igra.crneSkupine().numSets();
+		ocena += odbitekCrneSvobode;
 		
 		int odbitekBeleSvobode = 0;
 		for (List<Koordinate> seznam : igra.beleSkupine() ) {
@@ -82,7 +66,7 @@ public class Inteligenca extends KdoIgra{
 			}
 			odbitekBeleSvobode += 50 / (steviloSvobod + 1);
 		}
-		ocena += odbitekBeleSvobode; // / igra.beleSkupine().numSets();
+		ocena += odbitekBeleSvobode;
 		
 		// Nocemo prevec zetonov na robu
 		for (int x = 0; x < igra.sirina(); x++) {
@@ -114,6 +98,7 @@ public class Inteligenca extends KdoIgra{
 	
 	
 	private OcenjenaPoteza oceniMinimaxAlfaBeta(Igra igra, int globina, int alfa, int beta) {
+		// Izvede algoritem Minimax z "alfa beta pruning"-om dane globine
 		boolean maximizirajociIgralec = (igra.naPotezi() == BarvaIgralca.CRNI);
 		if (globina == 0 || igra.stanje() != Stanje.V_TEKU) {
 			return new OcenjenaPoteza(oceniPolozaj(igra), null);
@@ -190,6 +175,7 @@ public class Inteligenca extends KdoIgra{
 	}
 
 	private OcenjenaPoteza oceniMinimaxAlfaBeta(Igra igra, int globina) {
+		// Inicializira vrednosti alfa in beta ter požene Minimax
 		return oceniMinimaxAlfaBeta(igra, globina, Integer.MIN_VALUE, Integer.MAX_VALUE);
 	}
 	

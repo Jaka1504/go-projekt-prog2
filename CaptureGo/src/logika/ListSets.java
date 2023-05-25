@@ -55,6 +55,7 @@ public class ListSets<E> implements DisjointSets<E> {
 		
 	@Override
 	public ListSets<E> deepCopy () {
+		// Ustvari in vrne globoko kopijo danega objekta
 		ListSets<E> kopija = new ListSets<E>();
 		for (List<E> set : this.sets) {
 			List<E> setVKopiji = new LinkedList<E>();
@@ -74,6 +75,7 @@ public class ListSets<E> implements DisjointSets<E> {
 
 	@Override
 	public Iterator<List<E>> iterator() {
+		// Vrne iterator, ki se sprehodi čez vse disjunktne množice
 		Iterator<List<E>> it = new Iterator<List<E>>() {
 
             private int currentIndex = 0;
@@ -95,8 +97,4 @@ public class ListSets<E> implements DisjointSets<E> {
         };
         return it;
     }
-		
-		
-		
-		
 }
