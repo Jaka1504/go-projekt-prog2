@@ -23,13 +23,16 @@ public class Inteligenca extends KdoIgra{
 	
 	public Poteza izberiPotezo(Igra igra) {
 		// tukaj nastavis, kako globoko gre minimax
-		OcenjenaPoteza najboljsaPoteza = oceniMinimaxAlfaBeta(igra, 3);
+		// System.out.println("Racunalnik grunta");
+		OcenjenaPoteza najboljsaPoteza = oceniMinimaxAlfaBeta(igra, 4);
+		/*
 		System.out.println(igra);
 		System.out.print(najboljsaPoteza.poteza.x());
 		System.out.print(", ");
 		System.out.print(najboljsaPoteza.poteza.y());
 		System.out.print(" -> ");
 		System.out.println(najboljsaPoteza.ocena);
+		*/
 		return najboljsaPoteza.poteza;
 	}
 
@@ -60,24 +63,26 @@ public class Inteligenca extends KdoIgra{
 		
 		// Prestejemo svobode, preverimo ce je skupina v nevarnosti za lestev
 		int odbitekCrneSvobode = 0;
-		for (List<Koordinate> seznam : igra.crneSkupine() ) {
-			int steviloSvobod = Math.min(igra.steviloSvobodSkupine(seznam), 4);
+		for (List<Koordinate> seznam : igra.crneSkupine()) {
+			Koordinate predstavnik = seznam.get(0);
+			int steviloSvobod = Math.min(igra.steviloSvobodSkupine(predstavnik), 4);
 			if (steviloSvobod == 1) {
-				if (igra.jeLestev(seznam)) ocena += -200;
+				if (igra.jeLestev(predstavnik)) ocena += -200;
 			}
 			odbitekCrneSvobode += - 50 / (steviloSvobod + 1);
 		}
-		ocena += odbitekCrneSvobode / igra.crneSkupine().numSets();
+		ocena += odbitekCrneSvobode; // / igra.crneSkupine().numSets();
 		
 		int odbitekBeleSvobode = 0;
 		for (List<Koordinate> seznam : igra.beleSkupine() ) {
-			int steviloSvobod = Math.min(igra.steviloSvobodSkupine(seznam), 4);
+			Koordinate predstavnik = seznam.get(0);
+			int steviloSvobod = Math.min(igra.steviloSvobodSkupine(predstavnik), 4);
 			if (steviloSvobod == 1) {
-				if (igra.jeLestev(seznam)) ocena += 200;
+				if (igra.jeLestev(predstavnik)) ocena += 200;
 			}
 			odbitekBeleSvobode += 50 / (steviloSvobod + 1);
 		}
-		ocena += odbitekBeleSvobode / igra.beleSkupine().numSets();
+		ocena += odbitekBeleSvobode; // / igra.beleSkupine().numSets();
 		
 		// Nocemo prevec zetonov na robu
 		for (int x = 0; x < igra.sirina(); x++) {
@@ -86,23 +91,21 @@ public class Inteligenca extends KdoIgra{
 						Math.min(x, y),
 						Math.min(igra.sirina() - x - 1, igra.visina() - y - 1)
 						);
-				int odbitekZaBlizinoRobu = 12 / (oddaljenostOdRoba + 2);
-				switch (igra.vrednost(x, y)) {
-				case BEL:
-					ocena += odbitekZaBlizinoRobu;
-					break;
-				case CRN:
-					ocena += -odbitekZaBlizinoRobu;
-					break;
-				case PRAZNO:
-					break;
+				if (oddaljenostOdRoba < 2) {
+					int odbitekZaBlizinoRobu = 12 / (oddaljenostOdRoba + 1);
+					switch (igra.vrednost(x, y)) {
+					case BEL:
+						ocena += odbitekZaBlizinoRobu;
+						break;
+					case CRN:
+						ocena += -odbitekZaBlizinoRobu;
+						break;
+					case PRAZNO:
+						break;
+					}
 				}
 			}
 		}
-		
-		// za nepredvidljivost
-		Random rand = new Random();
-		ocena += rand.nextInt(-1, 1);
 		
 		// Vrnemo oceno
 		return ocena;
@@ -115,20 +118,40 @@ public class Inteligenca extends KdoIgra{
 		if (globina == 0 || igra.stanje() != Stanje.V_TEKU) {
 			return new OcenjenaPoteza(oceniPolozaj(igra), null);
 		}
+		List<Poteza> prisiljenePoteze = igra.prisiljenePoteze();
+		List<Poteza> moznePoteze = igra.moznePoteze();
 		
 		if (maximizirajociIgralec) {
 			int maximalnaOcena = Integer.MIN_VALUE;
 			Poteza najboljsaPoteza = null;
-			for (Poteza moznaPoteza : igra.moznePoteze()) {
-				Igra kopijaIgre = new Igra(igra);
-				kopijaIgre.odigraj(moznaPoteza);
-				int ocena = oceniMinimaxAlfaBeta(kopijaIgre, globina - 1, alfa, beta).ocena;
-				if (ocena > maximalnaOcena) {
-					maximalnaOcena = ocena;
-					najboljsaPoteza = moznaPoteza;
+			// Ce so prisiljene poteze, preverja le njih, ne spušča globine
+			if (prisiljenePoteze.size() > 0) {
+				for (Poteza moznaPoteza : prisiljenePoteze) {
+					Igra kopijaIgre = new Igra(igra);
+					kopijaIgre.odigraj(moznaPoteza);
+					int ocena = oceniMinimaxAlfaBeta(kopijaIgre, globina, alfa, beta).ocena;
+					if (ocena > maximalnaOcena) {
+						maximalnaOcena = ocena;
+						najboljsaPoteza = moznaPoteza;
+					}
+					alfa = Math.max(alfa, ocena);
+					if (beta < alfa) break;
 				}
-				alfa = Math.max(alfa, ocena);
-				if (beta < alfa) break;
+			}
+			
+			// Ce ni prisiljenih potez, preveri vse mozne poteze
+			else {
+				for (Poteza moznaPoteza : igra.moznePoteze()) {
+					Igra kopijaIgre = new Igra(igra);
+					kopijaIgre.odigraj(moznaPoteza);
+					int ocena = oceniMinimaxAlfaBeta(kopijaIgre, globina - 1, alfa, beta).ocena;
+					if (ocena > maximalnaOcena) {
+						maximalnaOcena = ocena;
+						najboljsaPoteza = moznaPoteza;
+					}
+					alfa = Math.max(alfa, ocena);
+					if (beta < alfa) break;
+				}
 			}
 			return new OcenjenaPoteza(maximalnaOcena, najboljsaPoteza);
 		}
@@ -136,16 +159,31 @@ public class Inteligenca extends KdoIgra{
 		else {
 			int minimalnaOcena = Integer.MAX_VALUE;
 			Poteza najboljsaPoteza = null;
-			for (Poteza moznaPoteza : igra.moznePoteze()) {
-				Igra kopijaIgre = new Igra(igra);
-				kopijaIgre.odigraj(moznaPoteza);
-				int ocena = oceniMinimaxAlfaBeta(kopijaIgre, globina - 1, alfa, beta).ocena;
-				if (ocena < minimalnaOcena) {
-					minimalnaOcena = ocena;
-					najboljsaPoteza = moznaPoteza;
+			if (prisiljenePoteze.size() > 0) {
+				for (Poteza moznaPoteza : prisiljenePoteze) {
+					Igra kopijaIgre = new Igra(igra);
+					kopijaIgre.odigraj(moznaPoteza);
+					int ocena = oceniMinimaxAlfaBeta(kopijaIgre, globina, alfa, beta).ocena;
+					if (ocena < minimalnaOcena) {
+						minimalnaOcena = ocena;
+						najboljsaPoteza = moznaPoteza;
+					}
+					beta = Math.min(beta, ocena);
+					if (beta < alfa) break;
 				}
-				beta = Math.min(beta, ocena);
-				if (beta < alfa) break;
+			}
+			else {
+				for (Poteza moznaPoteza : moznePoteze) {
+					Igra kopijaIgre = new Igra(igra);
+					kopijaIgre.odigraj(moznaPoteza);
+					int ocena = oceniMinimaxAlfaBeta(kopijaIgre, globina - 1, alfa, beta).ocena;
+					if (ocena < minimalnaOcena) {
+						minimalnaOcena = ocena;
+						najboljsaPoteza = moznaPoteza;
+					}
+					beta = Math.min(beta, ocena);
+					if (beta < alfa) break;
+				}
 			}
 			return new OcenjenaPoteza(minimalnaOcena, najboljsaPoteza);
 		}

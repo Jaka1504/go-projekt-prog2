@@ -40,23 +40,30 @@ public class ListSets<E> implements DisjointSets<E> {
 			if (block.contains(e1)) block1 = block;
 			if (block.contains(e2)) block2 = block;
 		}
-		if (block1 == null || block2 == null || block1 == block2) return;
+		if (block1 == null || block2 == null || block1 == block2) {
+			//System.out.println("Ne gre narediti unije");
+			if (block1 == null) System.out.println("block1 == null");
+			if (block2 == null) System.out.println("block2 == null");
+			return;
+		}
 		for (E e : block2) {
 			block1.add(e);
 		}
 		sets.remove(block2);
 		numSets--;
 	}
-	
+		
 	@Override
 	public ListSets<E> deepCopy () {
 		ListSets<E> kopija = new ListSets<E>();
 		for (List<E> set : this.sets) {
+			List<E> setVKopiji = new LinkedList<E>();
 			for (E element : set) {
-				kopija.add(element);
-				kopija.union(element, set.get(0));
+				setVKopiji.add(element);
 			}
+			kopija.sets.add(setVKopiji);
 		}
+		kopija.numSets = this.numSets;
 		return kopija;
 	}
 	

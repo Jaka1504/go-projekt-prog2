@@ -56,11 +56,12 @@ public class Vodja {
 			@Override
 			protected void done () {
 				Poteza poteza = null;
-				try {poteza = get();} catch (Exception e) {};
+				try {poteza = get();} catch (Exception e) {e.printStackTrace();};
 				if (igra == zacetnaIgra && poteza != null) {
 					igra.odigraj(poteza);
 					igramo ();
 				}
+				
 			}
 		};
 		worker.execute();

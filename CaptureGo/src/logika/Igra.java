@@ -1,9 +1,12 @@
 package logika;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
+import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import splosno.Poteza;
@@ -30,7 +33,9 @@ public class Igra {
 	protected Polje[][] tabela;
 	protected DisjointSets<Koordinate> crneSkupine;
 	protected DisjointSets<Koordinate> beleSkupine;
-
+	protected Map<Koordinate, Set<Koordinate>> crneSvobode;
+	protected Map<Koordinate, Set<Koordinate>> beleSvobode;
+	
 	public Igra(int sirina, int visina) {
 		naPotezi = BarvaIgralca.CRNI; // začne črni
 		this.sirina = sirina;
@@ -44,6 +49,8 @@ public class Igra {
 		}
 		crneSkupine = new ListSets<Koordinate>();
 		beleSkupine = new ListSets<Koordinate>();
+		crneSvobode = new HashMap<Koordinate, Set<Koordinate>>();
+		beleSvobode = new HashMap<Koordinate, Set<Koordinate>>();
 
 	}
 	
@@ -65,7 +72,14 @@ public class Igra {
 		}
 		this.crneSkupine = igra.crneSkupine.deepCopy();
 		this.beleSkupine = igra.beleSkupine.deepCopy();
-		
+		this.crneSvobode = new HashMap<Koordinate, Set<Koordinate>>();
+		this.beleSvobode = new HashMap<Koordinate, Set<Koordinate>>();
+		for (Koordinate predstavnikSkupine : igra.crneSvobode.keySet()) {
+			this.crneSvobode.put(predstavnikSkupine, new HashSet<Koordinate>(igra.crneSvobode.get(predstavnikSkupine)));
+		}
+		for (Koordinate predstavnikSkupine : igra.beleSvobode.keySet()) {
+			this.beleSvobode.put(predstavnikSkupine, new HashSet<Koordinate>(igra.beleSvobode.get(predstavnikSkupine)));
+		}
 	}
 	
 	public int sirina() {
@@ -98,6 +112,14 @@ public class Igra {
 	
 	public DisjointSets<Koordinate> crneSkupine() {
 		return crneSkupine;
+	}
+	
+	public Map<Koordinate, Set<Koordinate>> crneSvobode() {
+		return crneSvobode;
+	}
+	
+	public Map<Koordinate, Set<Koordinate>> beleSvobode() {
+		return beleSvobode;
 	}
 	
 	@Override
@@ -145,23 +167,88 @@ public class Igra {
 			Polje barvaZaNovZeton = (naPotezi == BarvaIgralca.BELI) ? Polje.BEL : Polje.CRN;
 			tabela[y][x] = barvaZaNovZeton;
 			
-			//Posodobi skupine
-			if (vrednost(koordinate) == Polje.CRN ) {
+			// Posodobi skupine in svobode
+			if (vrednost(koordinate) == Polje.CRN) {
 				crneSkupine.add(koordinate);
+				Set<Koordinate> mnozicaSvobod = new HashSet<Koordinate>();
 				for (Koordinate sosed : sosedi(koordinate)) {
 					if (vrednost(sosed) == vrednost(koordinate)) {
-						crneSkupine.union(koordinate, sosed);
+						Set<Koordinate> svobodeSoseda = crneSvobode.get(predstavnikSkupine(sosed));
+						if (svobodeSoseda != null) mnozicaSvobod.addAll(svobodeSoseda);
+						crneSvobode.remove(predstavnikSkupine(sosed));
+						crneSkupine.union(sosed, koordinate);
+					}
+					else if (vrednost(sosed) == Polje.PRAZNO) {
+						mnozicaSvobod.add(sosed);
+					}
+					else if (vrednost(sosed) == Polje.BEL) {
+						beleSvobode.get(predstavnikSkupine(sosed)).remove(koordinate);
 					}
 				}
+				mnozicaSvobod.remove(koordinate);
+				crneSvobode.put(predstavnikSkupine(koordinate), mnozicaSvobod);
 			}
-			if (vrednost(koordinate) == Polje.BEL ) {
+			if (vrednost(koordinate) == Polje.BEL) {
 				beleSkupine.add(koordinate);
+				Set<Koordinate> mnozicaSvobod = new HashSet<Koordinate>();
 				for (Koordinate sosed : sosedi(koordinate)) {
 					if (vrednost(sosed) == vrednost(koordinate)) {
+						Set<Koordinate> svobodeSoseda = beleSvobode.get(predstavnikSkupine(sosed));
+						if (svobodeSoseda != null) mnozicaSvobod.addAll(svobodeSoseda);
+						beleSvobode.remove(predstavnikSkupine(sosed));
 						beleSkupine.union(koordinate, sosed);
 					}
+					else if (vrednost(sosed) == Polje.PRAZNO) {
+						mnozicaSvobod.add(sosed);
+					}
+					else if (vrednost(sosed) == Polje.CRN) {
+						crneSvobode.get(predstavnikSkupine(sosed)).remove(koordinate);
+					}
+				}
+				mnozicaSvobod.remove(koordinate);
+				beleSvobode.put(predstavnikSkupine(koordinate), mnozicaSvobod);
+			}
+			
+			/*
+			
+			// Posodobi svobode
+			if (vrednost(koordinate) == Polje.CRN) {
+				Koordinate predstavnik = crneSkupine.find(koordinate);
+				if (crneSvobode.containsKey(predstavnik)) {
+					Set<Koordinate> mnozicaSvobod = crneSvobode.get(predstavnik);
+					mnozicaSvobod.remove(koordinate);
+					for (Koordinate sosed : sosedi(koordinate)) {
+						if (vrednost(sosed) == Polje.PRAZNO) mnozicaSvobod.add(sosed);
+					}
+				}
+				else {
+					Set<Koordinate> mnozicaSvobod = new HashSet<Koordinate>();
+					for (Koordinate sosed : sosedi(koordinate)) {
+						if (vrednost(sosed) == Polje.PRAZNO) mnozicaSvobod.add(sosed);
+					}
+					crneSvobode.put(predstavnik, mnozicaSvobod);
 				}
 			}
+			if (vrednost(koordinate) == Polje.BEL) {
+				Koordinate predstavnik = beleSkupine.find(koordinate);
+				if (beleSvobode.containsKey(predstavnik)) {
+					Set<Koordinate> mnozicaSvobod = beleSvobode.get(predstavnik);
+					mnozicaSvobod.remove(koordinate);
+					for (Koordinate sosed : sosedi(koordinate)) {
+						if (vrednost(sosed) == Polje.PRAZNO) mnozicaSvobod.add(sosed);
+					}
+				}
+				else {
+					Set<Koordinate> mnozicaSvobod = new HashSet<Koordinate>();
+					for (Koordinate sosed : sosedi(koordinate)) {
+						if (vrednost(sosed) == Polje.PRAZNO) mnozicaSvobod.add(sosed);
+					}
+					beleSvobode.put(predstavnik, mnozicaSvobod);
+				}
+			}
+			
+			*/
+			
 			
 			// Preveri ce je kdo zmagal
 			boolean igralecNaPoteziIzgubil = false;
@@ -169,13 +256,13 @@ public class Igra {
 			for (Koordinate koordinateSoseda : sosedi(koordinate)) {
 				Polje barvaSoseda = vrednost(koordinateSoseda);
 				if (barvaSoseda != Polje.PRAZNO) {
-					if (steviloSvobodSkupine(skupinaZetona(koordinateSoseda)) == 0) {
+					if (steviloSvobodSkupine(koordinateSoseda) == 0) {
 						if (barvaZaNovZeton == barvaSoseda) igralecNaPoteziIzgubil = true;
 						else drugIgralecIzgubil = true;
 					}
 				}
 			}
-			if (steviloSvobodSkupine(skupinaZetona(koordinate)) == 0) igralecNaPoteziIzgubil = true;
+			if (steviloSvobodSkupine(koordinate) == 0) igralecNaPoteziIzgubil = true;
 			if (drugIgralecIzgubil) {
 				if (naPotezi == BarvaIgralca.CRNI) stanje = Stanje.ZMAGA_CRNI;
 				else stanje = Stanje.ZMAGA_BELI;
@@ -187,11 +274,49 @@ public class Igra {
 								
 			// Preda potezo
 			naPotezi = BarvaIgralca.obrni(naPotezi);
+			
+			// System.out.println(this);
+			// System.out.println(crneSvobode);
+			// System.out.println(beleSvobode);
+			
 			return true;
 		}
 		else return false;
 	}	
 	
+	public Koordinate predstavnikSkupine(Koordinate koordinate) {
+		switch (vrednost(koordinate)) {
+		case BEL:
+			return beleSkupine.find(koordinate);
+		case CRN:
+			return crneSkupine.find(koordinate);
+		case PRAZNO:
+			System.out.println("predstavnik praznega");
+			return null;
+		default:
+			System.out.println("predstavnik defaulta");
+			return null;
+		}
+	}
+	
+	public int steviloSvobodSkupine(Koordinate koordinate) {
+		Koordinate predstavnik = predstavnikSkupine(koordinate);		
+		switch (vrednost(predstavnik)) {
+		case BEL:
+			return beleSvobode.get(predstavnik).size();
+		case CRN:
+			return crneSvobode.get(predstavnik).size();
+		case PRAZNO:
+			System.out.println("svobode praznega");
+			return 0;
+		default:
+			System.out.println("svobode defaulta");
+			return 0;
+		}
+		
+	}
+	
+	/*
 	public Set<Koordinate> skupinaZetona(Koordinate koordinate) {
 		int x = koordinate.x();
 		int y = koordinate.y();
@@ -248,6 +373,8 @@ public class Igra {
 		return svobode.size();		
 	}
 	
+	
+	
 	public boolean jeLestev(List<Koordinate> skupina) {
 		// metodi naj se poda le skupine, za katere smo
 		// prepričani, da imajo natanko 1 svobodo
@@ -269,6 +396,36 @@ public class Igra {
 		return false;
 	}
 	
+	*/
+	
+	public boolean jeLestev(Koordinate koordinate) {
+		Koordinate predstavnik = predstavnikSkupine(koordinate);
+		if (steviloSvobodSkupine(koordinate) != 1) return false;
+		else {
+			switch (vrednost(koordinate)) {
+			case BEL:
+				Koordinate belaSvoboda = beleSvobode.get(predstavnik).iterator().next();
+				for (Koordinate sosed : sosedi(belaSvoboda)) {
+					if (vrednost(sosed) == Polje.CRN) return true;
+				}
+				return false;
+			case CRN:
+				Koordinate crnaSvoboda = crneSvobode.get(predstavnik).iterator().next();
+				for (Koordinate sosed : sosedi(crnaSvoboda)) {
+					if (vrednost(sosed) == Polje.BEL) return true;
+				}
+				return false;
+			case PRAZNO:
+				System.out.println("lestev praznega");
+				return false;
+			default:
+				System.out.println("lestev defaulta");
+				return false;
+			
+			}
+		}
+	}
+	
 	private Set<Koordinate> sosedi(Koordinate koordinate) {
 		int x = koordinate.x();
 		int y = koordinate.y();
@@ -287,15 +444,27 @@ public class Igra {
 	}
 	
 	
-	public Queue<Poteza> moznePoteze() {
-		Queue<Poteza> moznosti = new LinkedList<Poteza>();
+	public List<Poteza> moznePoteze() {
+		List<Poteza> moznosti = new LinkedList<Poteza>();
 		for (int x = 0; x < sirina; x++) {
 			for (int y = 0 ; y < visina; y++) {
 				if (vrednost(x, y) == Polje.PRAZNO) moznosti.add(new Poteza(x, y));
 			}
 		}
-		return moznosti;
+		Random rand = new Random();
+		Collections.shuffle(moznosti, rand);
+		return moznosti;		
 	}
 	
+	public List<Poteza> prisiljenePoteze() {
+		List<Poteza> moznosti = new LinkedList<Poteza>();
+		for (Set<Koordinate> svobode: crneSvobode.values()) {
+			if (svobode.size() == 1) {
+				Koordinate svoboda = svobode.iterator().next();
+				moznosti.add(new Poteza(svoboda.x(), svoboda.y()));
+			}
+		}
+		return moznosti;
+	}
 	
 }
