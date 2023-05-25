@@ -3,6 +3,8 @@ package vodja;
 import java.util.EnumMap;
 import java.util.Map;
 
+import javax.swing.SwingWorker;
+
 import gui.Okno;
 import inteligenca.Inteligenca;
 import logika.Igra;
@@ -27,6 +29,12 @@ public class Vodja {
 	public static void igramo() {
 		// Ce je igra se v teku, poklice racunalnikovo potezo ali
 		// nastavi clovekNaVrsti na true
+		okno.platno().repaint();
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		if (igra.stanje() == Igra.Stanje.V_TEKU) {
 			Igra.BarvaIgralca naPotezi = igra.naPotezi();
 			VrstaIgralca vrstaNaPotezi = vrstiIgralcev.get(naPotezi);
@@ -42,20 +50,25 @@ public class Vodja {
 	}
 
 	public static void igrajRacunalnikovoPotezo() {
-		// Kao razmišljanje
+		Igra zacetnaIgra = igra;
+		SwingWorker<Poteza, Void> worker = new SwingWorker<Poteza, Void> () {
 		
-		/*
-		try {
-			Thread.sleep(300);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+			@Override
+			protected Poteza doInBackground() {
+				return inteligenca.izberiPotezo(igra);
+			}
 		
-		*/
-		
-		igra.odigraj(inteligenca.izberiPotezo(igra));
-		okno.platno().repaint();
-		igramo();
+			@Override
+			protected void done () {
+				Poteza poteza = null;
+				try {poteza = get();} catch (Exception e) {};
+				if (igra == zacetnaIgra && poteza != null) {
+					igra.odigraj(poteza);
+					igramo ();
+				}
+			}
+		};
+		worker.execute();
 	}
 	
 	public static void igrajClovekovoPotezo(Poteza poteza) {
