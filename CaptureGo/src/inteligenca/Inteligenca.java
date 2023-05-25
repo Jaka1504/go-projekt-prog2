@@ -23,7 +23,14 @@ public class Inteligenca extends KdoIgra{
 	
 	public Poteza izberiPotezo(Igra igra) {
 		// tukaj nastavis, kako globoko gre minimax
-		return oceniMinimaxAlfaBeta(igra, 3).poteza;
+		OcenjenaPoteza najboljsaPoteza = oceniMinimaxAlfaBeta(igra, 3);
+		System.out.println(igra);
+		System.out.print(najboljsaPoteza.poteza.x());
+		System.out.print(", ");
+		System.out.print(najboljsaPoteza.poteza.y());
+		System.out.print(" -> ");
+		System.out.println(najboljsaPoteza.ocena);
+		return najboljsaPoteza.poteza;
 	}
 
 	private Poteza nakljucnaPoteza(Igra igra) {
@@ -44,25 +51,31 @@ public class Inteligenca extends KdoIgra{
 		case V_TEKU:
 			break;
 		case ZMAGA_BELI:
-			ocena += -1000;
+			ocena += -10000;
 			break;
 		case ZMAGA_CRNI:
-			ocena += 1000;
+			ocena += 10000;
 			break;
 		}
 		
-		//Prestejemo svobode
+		// Prestejemo svobode, preverimo ce je skupina v nevarnosti za lestev
 		int odbitekCrneSvobode = 0;
 		for (List<Koordinate> seznam : igra.crneSkupine() ) {
-			int steviloSvobod = Math.max(igra.steviloSvobodSkupine(seznam), 4);
-			odbitekCrneSvobode += - 20 / (steviloSvobod + 1);
+			int steviloSvobod = Math.min(igra.steviloSvobodSkupine(seznam), 4);
+			if (steviloSvobod == 1) {
+				if (igra.jeLestev(seznam)) ocena += -200;
+			}
+			odbitekCrneSvobode += - 50 / (steviloSvobod + 1);
 		}
 		ocena += odbitekCrneSvobode / igra.crneSkupine().numSets();
 		
 		int odbitekBeleSvobode = 0;
 		for (List<Koordinate> seznam : igra.beleSkupine() ) {
-			int steviloSvobod = Math.max(igra.steviloSvobodSkupine(seznam), 4);
-			odbitekBeleSvobode += 20 / (steviloSvobod + 1);
+			int steviloSvobod = Math.min(igra.steviloSvobodSkupine(seznam), 4);
+			if (steviloSvobod == 1) {
+				if (igra.jeLestev(seznam)) ocena += 200;
+			}
+			odbitekBeleSvobode += 50 / (steviloSvobod + 1);
 		}
 		ocena += odbitekBeleSvobode / igra.beleSkupine().numSets();
 		
@@ -73,7 +86,7 @@ public class Inteligenca extends KdoIgra{
 						Math.min(x, y),
 						Math.min(igra.sirina() - x - 1, igra.visina() - y - 1)
 						);
-				int odbitekZaBlizinoRobu = 12 / (oddaljenostOdRoba + 1);
+				int odbitekZaBlizinoRobu = 12 / (oddaljenostOdRoba + 2);
 				switch (igra.vrednost(x, y)) {
 				case BEL:
 					ocena += odbitekZaBlizinoRobu;
@@ -89,7 +102,7 @@ public class Inteligenca extends KdoIgra{
 		
 		// za nepredvidljivost
 		Random rand = new Random();
-		ocena += rand.nextInt(-5, 5);
+		ocena += rand.nextInt(-1, 1);
 		
 		// Vrnemo oceno
 		return ocena;

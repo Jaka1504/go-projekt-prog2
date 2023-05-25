@@ -30,11 +30,6 @@ public class Vodja {
 		// Ce je igra se v teku, poklice racunalnikovo potezo ali
 		// nastavi clovekNaVrsti na true
 		okno.platno().repaint();
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		if (igra.stanje() == Igra.Stanje.V_TEKU) {
 			Igra.BarvaIgralca naPotezi = igra.naPotezi();
 			VrstaIgralca vrstaNaPotezi = vrstiIgralcev.get(naPotezi);

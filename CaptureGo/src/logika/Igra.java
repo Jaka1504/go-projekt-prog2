@@ -72,14 +72,6 @@ public class Igra {
 		return sirina;
 	}
 	
-	public DisjointSets<Koordinate> beleSkupine() {
-		return beleSkupine;
-	}
-	
-	public DisjointSets<Koordinate> crneSkupine() {
-		return crneSkupine;
-	}
-	
 	public int visina() {
 		return visina;
 	}
@@ -88,12 +80,24 @@ public class Igra {
 		return naPotezi;
 	}
 	
+	public Stanje stanje() {
+		return stanje;
+	}
+	
 	public Polje vrednost(int x, int y) {return tabela[y][x];}
 	
 	public Polje vrednost(Koordinate koordinate) {
 		int x = koordinate.x();
 		int y = koordinate.y();
 		return vrednost(x, y);
+	}
+	
+	public DisjointSets<Koordinate> beleSkupine() {
+		return beleSkupine;
+	}
+	
+	public DisjointSets<Koordinate> crneSkupine() {
+		return crneSkupine;
 	}
 	
 	@Override
@@ -186,13 +190,7 @@ public class Igra {
 			return true;
 		}
 		else return false;
-	}
-	
-	public Stanje stanje() {
-		// vrne stanje v katerem je igra
-		return stanje;
-	}
-	
+	}	
 	
 	public Set<Koordinate> skupinaZetona(Koordinate koordinate) {
 		int x = koordinate.x();
@@ -228,7 +226,7 @@ public class Igra {
 		return skupina;
 	}
 	
-	//na set
+	// na set
 	public int steviloSvobodSkupine(Set<Koordinate> skupina) {
 		Set<Koordinate> svobode = new HashSet<Koordinate>();
 		for (Koordinate koordinateZetona : skupina) {
@@ -239,7 +237,7 @@ public class Igra {
 		return svobode.size();
 	}
 
-	//na list
+	// na list
 	public int steviloSvobodSkupine(List<Koordinate> skupina) {
 		Set<Koordinate> svobode = new HashSet<Koordinate>();
 		for (Koordinate koordinateZetona : skupina) {
@@ -248,6 +246,27 @@ public class Igra {
 			}
 		}
 		return svobode.size();		
+	}
+	
+	public boolean jeLestev(List<Koordinate> skupina) {
+		// metodi naj se poda le skupine, za katere smo
+		// prepričani, da imajo natanko 1 svobodo
+		Koordinate svoboda = null;
+		Polje barvaZetona = null;
+		for (Koordinate koordinateZetona : skupina) {
+			for (Koordinate koordinateSoseda : sosedi(koordinateZetona)) {
+				if (vrednost(koordinateSoseda) == Polje.PRAZNO) {
+					svoboda = koordinateSoseda;
+					barvaZetona = vrednost(koordinateZetona);
+					break;
+				}
+			}
+		}
+		if (svoboda == null || barvaZetona == null) return false;
+		for (Koordinate koordinateSoseda : sosedi(svoboda)) {
+			if (vrednost(koordinateSoseda) == barvaZetona.obrni()) return true;
+		}
+		return false;
 	}
 	
 	private Set<Koordinate> sosedi(Koordinate koordinate) {
