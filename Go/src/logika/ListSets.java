@@ -97,4 +97,45 @@ public class ListSets<E> implements DisjointSets<E> {
         };
         return it;
     }
+	
+	@Override
+	public void remove(E e) {
+		List<E> removedSet = null;
+		for (List<E> set : sets) {
+			if (set.contains(e)) {
+				removedSet = set;
+				break;
+			}
+		}
+		sets.remove(removedSet);
+		numSets--;
+	}
+	
+	@Override
+	public void addAll(Iterable<E> iter) {
+		if (iter.iterator().hasNext()) {
+			E prviElement = iter.iterator().next();
+			this.add(prviElement);
+			for (E e : iter) {
+				this.add(e);
+				this.union(prviElement, e);
+			}
+		}
+	}
+	
+	@Override
+	public String toString() {
+		String str = "";
+		for (List<E> set : sets)
+			str += set.toString();
+			str += "\n";
+		return str;
+	}
+	
+	@Override
+	public void clear() {
+		sets = new LinkedList<List<E>>();
+		numSets = 0;
+	}
+	
 }

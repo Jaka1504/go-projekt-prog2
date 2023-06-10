@@ -14,4 +14,10 @@ public interface DisjointSets<E> extends Iterable<List<E>>{
 	
 	public DisjointSets<E> deepCopy();
 
+	public void remove(E e);
+	
+	public void addAll(Iterable<E> iter);
+	
+	public void clear();
+
 }

@@ -6,11 +6,11 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 
 import splosno.Poteza;
-
 
 public class Igra {
 	public enum BarvaIgralca {
@@ -33,8 +33,15 @@ public class Igra {
 	protected Polje[][] tabela;
 	protected DisjointSets<Koordinate> crneSkupine;
 	protected DisjointSets<Koordinate> beleSkupine;
+	protected DisjointSets<Koordinate> teritoriji;
 	protected Map<Koordinate, Set<Koordinate>> crneSvobode;
 	protected Map<Koordinate, Set<Koordinate>> beleSvobode;
+	protected Map<Koordinate, Set<Koordinate>> mejeTeritorijev;
+	protected Koordinate zadnjaPoteza;
+	protected Koordinate zadnjiUjetnik;
+	protected int steviloCrnihUjetnikov;
+	protected int steviloBelihUjetnikov;
+	
 	
 	public Igra(int sirina, int visina) {
 		naPotezi = BarvaIgralca.CRNI; // začne črni
@@ -47,10 +54,29 @@ public class Igra {
 				tabela[i][j] = Polje.PRAZNO;
 			}
 		}
+		
 		crneSkupine = new ListSets<Koordinate>();
 		beleSkupine = new ListSets<Koordinate>();
+		
+		teritoriji = new ListSets<Koordinate>();
+		Koordinate prvoPolje = new Koordinate(0, 0);
+		for (int y = 0; y < visina; y++) {
+			for (int x = 0 ; x < sirina; x++) {
+				Koordinate koordinate = new Koordinate(x, y); 
+				teritoriji.add(koordinate);
+				teritoriji.union(prvoPolje, koordinate);
+			}
+		}
+		
 		crneSvobode = new HashMap<Koordinate, Set<Koordinate>>();
 		beleSvobode = new HashMap<Koordinate, Set<Koordinate>>();
+		mejeTeritorijev = new HashMap<Koordinate, Set<Koordinate>>();
+		
+		zadnjaPoteza = null;
+		zadnjiUjetnik = null;
+		
+		steviloCrnihUjetnikov = 0;
+		steviloBelihUjetnikov = 0;
 
 	}
 	
@@ -72,14 +98,27 @@ public class Igra {
 		}
 		this.crneSkupine = igra.crneSkupine.deepCopy();
 		this.beleSkupine = igra.beleSkupine.deepCopy();
+		this.teritoriji = igra.teritoriji.deepCopy();
+		
 		this.crneSvobode = new HashMap<Koordinate, Set<Koordinate>>();
 		this.beleSvobode = new HashMap<Koordinate, Set<Koordinate>>();
+		this.mejeTeritorijev = new HashMap<Koordinate, Set<Koordinate>>();
+		
 		for (Koordinate predstavnikSkupine : igra.crneSvobode.keySet()) {
 			this.crneSvobode.put(predstavnikSkupine, new HashSet<Koordinate>(igra.crneSvobode.get(predstavnikSkupine)));
 		}
 		for (Koordinate predstavnikSkupine : igra.beleSvobode.keySet()) {
 			this.beleSvobode.put(predstavnikSkupine, new HashSet<Koordinate>(igra.beleSvobode.get(predstavnikSkupine)));
 		}
+		for (Koordinate predstavnikSkupine : igra.mejeTeritorijev.keySet()) {
+			this.mejeTeritorijev.put(predstavnikSkupine, new HashSet<Koordinate>(igra.mejeTeritorijev.get(predstavnikSkupine)));
+		}
+		
+		this.zadnjaPoteza = igra.zadnjaPoteza;
+		this.zadnjiUjetnik = igra.zadnjiUjetnik;
+		
+		this.steviloCrnihUjetnikov = igra.steviloCrnihUjetnikov;
+		this.steviloBelihUjetnikov = igra.steviloBelihUjetnikov;
 	}
 	
 	public int sirina() {
@@ -104,6 +143,12 @@ public class Igra {
 		int x = koordinate.x();
 		int y = koordinate.y();
 		return vrednost(x, y);
+	}
+	
+	public void nastaviVrednost(Koordinate koordinate, Polje vrednost) {
+		int x = koordinate.x();
+		int y = koordinate.y();
+		tabela[y][x] = vrednost;
 	}
 	
 	public DisjointSets<Koordinate> beleSkupine() {
@@ -163,82 +208,307 @@ public class Igra {
 		int x = poteza.x();
 		int y = poteza.y();
 		Koordinate koordinate = new Koordinate(x, y);
+		
+		// Če je poteza PASS
+		if (koordinate == Koordinate.PASS) {
+			if (zadnjaPoteza == Koordinate.PASS) {
+				Koordinate rezultat = tocke();
+				if (rezultat.x() > rezultat.y()) stanje = Stanje.ZMAGA_CRNI;
+				else if (rezultat.x() < rezultat.y()) stanje = Stanje.ZMAGA_BELI;
+				else stanje = Stanje.ZMAGA_BELI; // TODO neodloceno dodaj
+				return true;
+			}
+			naPotezi = BarvaIgralca.obrni(naPotezi);
+			zadnjaPoteza = Koordinate.PASS;
+			return true;
+		}
+		
 		if (vrednost(koordinate) == Polje.PRAZNO && stanje == Stanje.V_TEKU) {
+			// Preveri ko in samomor (nelegalni potezi)
+			if (!legalnostKo(koordinate)) {
+				System.out.println("ILLEGAL KO");
+				return false;
+			}
+			if (!legalnostSamomor(koordinate)) return false;
 			
 			// Postavi žeton
-			Polje barvaZaNovZeton = (naPotezi == BarvaIgralca.BELI) ? Polje.BEL : Polje.CRN;
-			tabela[y][x] = barvaZaNovZeton;
+			postaviZeton(koordinate);
 			
 			// Posodobi skupine in svobode
-			if (vrednost(koordinate) == Polje.CRN) {
-				crneSkupine.add(koordinate);
-				Set<Koordinate> mnozicaSvobod = new HashSet<Koordinate>();
-				for (Koordinate sosed : sosedi(koordinate)) {
-					if (vrednost(sosed) == vrednost(koordinate)) {
-						Set<Koordinate> svobodeSoseda = crneSvobode.get(predstavnikSkupine(sosed));
-						if (svobodeSoseda != null) mnozicaSvobod.addAll(svobodeSoseda);
-						crneSvobode.remove(predstavnikSkupine(sosed));
-						crneSkupine.union(sosed, koordinate);
-					}
-					else if (vrednost(sosed) == Polje.PRAZNO) {
-						mnozicaSvobod.add(sosed);
-					}
-					else if (vrednost(sosed) == Polje.BEL) {
-						beleSvobode.get(predstavnikSkupine(sosed)).remove(koordinate);
-					}
-				}
-				mnozicaSvobod.remove(koordinate);
-				crneSvobode.put(predstavnikSkupine(koordinate), mnozicaSvobod);
-			}
-			if (vrednost(koordinate) == Polje.BEL) {
-				beleSkupine.add(koordinate);
-				Set<Koordinate> mnozicaSvobod = new HashSet<Koordinate>();
-				for (Koordinate sosed : sosedi(koordinate)) {
-					if (vrednost(sosed) == vrednost(koordinate)) {
-						Set<Koordinate> svobodeSoseda = beleSvobode.get(predstavnikSkupine(sosed));
-						if (svobodeSoseda != null) mnozicaSvobod.addAll(svobodeSoseda);
-						beleSvobode.remove(predstavnikSkupine(sosed));
-						beleSkupine.union(koordinate, sosed);
-					}
-					else if (vrednost(sosed) == Polje.PRAZNO) {
-						mnozicaSvobod.add(sosed);
-					}
-					else if (vrednost(sosed) == Polje.CRN) {
-						crneSvobode.get(predstavnikSkupine(sosed)).remove(koordinate);
-					}
-				}
-				mnozicaSvobod.remove(koordinate);
-				beleSvobode.put(predstavnikSkupine(koordinate), mnozicaSvobod);
-			}
+			lokalnoPosodobiSkupineInSvobode(koordinate);
 			
-			// Preveri ce je kdo zmagal
-			boolean igralecNaPoteziIzgubil = false;
-			boolean drugIgralecIzgubil = false;
-			for (Koordinate koordinateSoseda : sosedi(koordinate)) {
-				Polje barvaSoseda = vrednost(koordinateSoseda);
-				if (barvaSoseda != Polje.PRAZNO) {
-					if (steviloSvobodSkupine(koordinateSoseda) == 0) {
-						if (barvaZaNovZeton == barvaSoseda) igralecNaPoteziIzgubil = true;
-						else drugIgralecIzgubil = true;
-					}
-				}
+			// Preveri ce je kdo ujet
+			Set<Koordinate> ujetniki = preveriCeJeKdoUjet(koordinate);
+			if (ujetniki == null) {
+				// Lokalno posodobimo teritorije in meje
+				lokalnoPosodobiTeritorijeInMeje(koordinate);
 			}
-			if (steviloSvobodSkupine(koordinate) == 0) igralecNaPoteziIzgubil = true;
-			if (drugIgralecIzgubil) {
-				if (naPotezi == BarvaIgralca.CRNI) stanje = Stanje.ZMAGA_CRNI;
-				else stanje = Stanje.ZMAGA_BELI;
-			}
-			else if (igralecNaPoteziIzgubil) {
-				if (naPotezi == BarvaIgralca.CRNI) stanje = Stanje.ZMAGA_BELI;
-				else stanje = Stanje.ZMAGA_CRNI;
+			else {
+				// Odstranimo ujete skupine
+				for (Koordinate ujetnik : ujetniki) odstraniSkupino(ujetnik);
+				
+				// Globalno poracunamo vse na novo
+				globalnoPosodobiVseGrupe();
 			}
 								
 			// Preda potezo
 			naPotezi = BarvaIgralca.obrni(naPotezi);
+			zadnjaPoteza = koordinate;
 			return true;
 		}
 		else return false;
 	}	
+	
+	// =================== Delne metode za odigraj =================== 
+	
+	private boolean legalnostKo(Koordinate koordinate) {
+		// Vrne true, če je poteza v skladu s pravilom Ko, false sicer
+		// 
+		// Pravilo Ko je kršeno, če igralec poskuša igrati na zadnjo svobodo
+		// skupine od zadnjaPoteza, ta svoboda pa je ravno zadnjiUjetnik
+		if (zadnjaPoteza != null && zadnjaPoteza != Koordinate.PASS && zadnjiUjetnik != null) {
+			if (steviloSvobodSkupine(zadnjaPoteza) != 1) return true;
+			Koordinate edinaSvoboda;
+			if (naPotezi == BarvaIgralca.CRNI) {
+				edinaSvoboda = beleSvobode.get(beleSkupine.find(zadnjaPoteza)).iterator().next();
+			}
+			else {
+				edinaSvoboda = crneSvobode.get(crneSkupine.find(zadnjaPoteza)).iterator().next();
+			}
+			System.out.println();
+			System.out.print("Poteza: ");
+			System.out.println(koordinate);
+			System.out.print("Zadnja poteza: ");
+			System.out.println(zadnjaPoteza);
+			System.out.print("Zadnji ujetnik: ");
+			System.out.println(zadnjiUjetnik);
+			System.out.print("Edina svoboda: ");
+			System.out.println(edinaSvoboda);
+			System.out.println(edinaSvoboda == zadnjiUjetnik);
+			System.out.println(zadnjiUjetnik == koordinate);
+			if (edinaSvoboda.equals(koordinate) && zadnjiUjetnik.equals(koordinate)) {
+				System.out.println(" ================= Vrnil sem false ===============");
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private boolean legalnostSamomor(Koordinate koordinate) {
+		// Vrne true, če je poteza v skladu s prepovedjo samomora, false sicer
+		// 
+		// Poteza je samomorilska, če imajo vsi sosedi iste barve po eno svobodo in ni noben
+		// sosed prazno polje, razen če ima kateri sosed druge barve le eno svobodo
+		for (Koordinate koordinateSoseda : sosedi(koordinate)) {
+			Polje sosed = vrednost(koordinateSoseda);
+			if (sosed == Polje.PRAZNO) return true;
+			if (sosed == Polje.barvaZaZeton(naPotezi).obrni()) {
+				if (steviloSvobodSkupine(koordinateSoseda) == 1) return true;
+			}
+			if (sosed == Polje.barvaZaZeton(naPotezi)) {
+				if (steviloSvobodSkupine(koordinateSoseda) != 1) return true;
+			}
+		}
+		return false;
+	}
+	
+	private void postaviZeton(Koordinate koordinate) {
+		Polje barvaZaNovZeton = (naPotezi == BarvaIgralca.BELI) ? Polje.BEL : Polje.CRN;
+		nastaviVrednost(koordinate, barvaZaNovZeton);
+	}
+	
+	private void lokalnoPosodobiSkupineInSvobode(Koordinate koordinate) {
+		if (vrednost(koordinate) == Polje.CRN) {
+			crneSkupine.add(koordinate);
+			Set<Koordinate> mnozicaSvobod = new HashSet<Koordinate>();
+			for (Koordinate sosed : sosedi(koordinate)) {
+				if (vrednost(sosed) == vrednost(koordinate)) {
+					Set<Koordinate> svobodeSoseda = crneSvobode.get(predstavnikSkupine(sosed));
+					if (svobodeSoseda != null) mnozicaSvobod.addAll(svobodeSoseda);
+					crneSvobode.remove(predstavnikSkupine(sosed));
+					crneSkupine.union(sosed, koordinate);
+				}
+				else if (vrednost(sosed) == Polje.PRAZNO) {
+					mnozicaSvobod.add(sosed);
+				}
+				else if (vrednost(sosed) == Polje.BEL) {
+					beleSvobode.get(predstavnikSkupine(sosed)).remove(koordinate);
+				}
+			}
+			mnozicaSvobod.remove(koordinate);
+			crneSvobode.put(predstavnikSkupine(koordinate), mnozicaSvobod);
+		}
+		if (vrednost(koordinate) == Polje.BEL) {
+			beleSkupine.add(koordinate);
+			Set<Koordinate> mnozicaSvobod = new HashSet<Koordinate>();
+			for (Koordinate sosed : sosedi(koordinate)) {
+				if (vrednost(sosed) == vrednost(koordinate)) {
+					Set<Koordinate> svobodeSoseda = beleSvobode.get(predstavnikSkupine(sosed));
+					if (svobodeSoseda != null) mnozicaSvobod.addAll(svobodeSoseda);
+					beleSvobode.remove(predstavnikSkupine(sosed));
+					beleSkupine.union(koordinate, sosed);
+				}
+				else if (vrednost(sosed) == Polje.PRAZNO) {
+					mnozicaSvobod.add(sosed);
+				}
+				else if (vrednost(sosed) == Polje.CRN) {
+					crneSvobode.get(predstavnikSkupine(sosed)).remove(koordinate);
+				}
+			}
+			mnozicaSvobod.remove(koordinate);
+			beleSvobode.put(predstavnikSkupine(koordinate), mnozicaSvobod);
+		}
+	}
+	
+	private Set<Koordinate> preveriCeJeKdoUjet(Koordinate koordinate) {
+		Polje barvaZaNovZeton = (naPotezi == BarvaIgralca.BELI) ? Polje.BEL : Polje.CRN;
+		boolean igralecNaPoteziUjet = false;
+		boolean drugIgralecUjet = false;
+		Set<Koordinate> ujetnikiNaPotezi = new HashSet<Koordinate>();
+		Set<Koordinate> ujetnikiDrugi = new HashSet<Koordinate>();
+		for (Koordinate koordinateSoseda : sosedi(koordinate)) {
+			Polje barvaSoseda = vrednost(koordinateSoseda);
+			if (barvaSoseda != Polje.PRAZNO) {
+				if (steviloSvobodSkupine(koordinateSoseda) == 0) {
+					if (barvaZaNovZeton == barvaSoseda) {
+						igralecNaPoteziUjet = true;
+						ujetnikiNaPotezi.add(koordinateSoseda);
+					}
+					else {
+						drugIgralecUjet = true;
+						ujetnikiDrugi.add(koordinateSoseda);
+					}
+				}
+			}
+		}
+		if (steviloSvobodSkupine(koordinate) == 0) {
+			igralecNaPoteziUjet = true;
+			ujetnikiNaPotezi.add(koordinate);
+		}
+		if (drugIgralecUjet) return ujetnikiDrugi;
+		else if (igralecNaPoteziUjet) return ujetnikiNaPotezi;
+		else return null;				
+	}
+	
+	private void lokalnoPosodobiTeritorijeInMeje(Koordinate koordinate) {
+		// Odstrani teritorij, katerega del je bilo izbrano polje
+		Koordinate predstavnik = teritoriji.find(koordinate);
+		mejeTeritorijev.remove(predstavnik);
+		teritoriji.remove(predstavnik);
+		
+		// Za vsakega od praznih sosedov doda pripadajoč teritorij, če ga še ni
+		for (Koordinate sosed : sosedi(koordinate)) {
+			if (vrednost(sosed) == Polje.PRAZNO && teritoriji.find(sosed) == null) {
+				GrupaZMejo novTeritorij = poisciGrupo(sosed);
+				teritoriji.addAll(novTeritorij.grupa());
+				mejeTeritorijev.put(teritoriji.find(sosed), novTeritorij.meja());
+			}
+		}
+	}
+	
+	private void odstraniSkupino(Koordinate koordinate) {
+		if (vrednost(koordinate) == Polje.CRN) {
+			for (List<Koordinate> skupina : crneSkupine) {
+				if (skupina.contains(koordinate)) {
+					steviloCrnihUjetnikov += skupina.size();
+					if (skupina.size() == 1) zadnjiUjetnik = koordinate;
+					else zadnjiUjetnik = null;
+					for (Koordinate elementSkupine : skupina) nastaviVrednost(elementSkupine, Polje.PRAZNO);
+				}
+			}
+		}
+		else if (vrednost(koordinate) == Polje.BEL) {
+			for (List<Koordinate> skupina : beleSkupine) {
+				if (skupina.contains(koordinate)) {
+					steviloBelihUjetnikov += skupina.size();
+					if (skupina.size() == 1) zadnjiUjetnik = koordinate;
+					else zadnjiUjetnik = null;
+					for (Koordinate elementSkupine : skupina) nastaviVrednost(elementSkupine, Polje.PRAZNO);
+				}
+			}
+		}
+	}
+	
+	private void globalnoPosodobiVseGrupe() {
+		// Počisti stare podatke
+		crneSkupine.clear();
+		beleSkupine.clear();
+		teritoriji.clear();
+		
+		crneSvobode.clear();
+		beleSvobode.clear();
+		mejeTeritorijev.clear();
+		
+		// Na novo poracuna stvari
+		for (int x = 0 ; x < sirina; x++) {
+			for (int y = 0; y < visina; y++) {
+				Koordinate koordinate = new Koordinate(x, y);
+				DisjointSets<Koordinate> tipGrup;
+				Map<Koordinate, Set<Koordinate>> tipMej;
+				switch (vrednost(koordinate)) {
+				case BEL:
+					tipGrup = beleSkupine;
+					tipMej = beleSvobode;
+					break;
+				case CRN:
+					tipGrup = crneSkupine;
+					tipMej = crneSvobode;
+					break;
+				case PRAZNO:
+					tipGrup = teritoriji;
+					tipMej = mejeTeritorijev;
+					break;
+				default:
+					tipGrup = null;
+					tipMej = null;
+					break;
+				}
+				if (tipGrup.find(koordinate) == null) {
+					GrupaZMejo grupa = poisciGrupo(koordinate);
+					tipGrup.addAll(grupa.grupa());
+					// za mejo teritorija dodamo vse, za svobode skupine pa dodamo samo prazne
+					if (vrednost(koordinate) != Polje.PRAZNO) {
+						grupa.meja().removeIf(koord -> (vrednost(koord) != Polje.PRAZNO));
+					}
+					tipMej.put(tipGrup.find(koordinate), grupa.meja());
+				}
+			}
+		}		
+	}
+	
+	// =================== Pomožne metode ===================
+	
+	public Koordinate tocke() {
+		int crni = 0;
+		int beli = 0;
+		
+		// Prištejemo velikost osvojenega ozemlja
+		for (List<Koordinate> teritorij : teritoriji) {
+			boolean odCrnega = true;
+			boolean odBelega = true;
+			for (Koordinate mejnoPolje : mejeTeritorijev.get(teritoriji.find(teritorij.get(0)))) {
+				if (vrednost(mejnoPolje) == Polje.CRN) odBelega = false;
+				else if (vrednost(mejnoPolje) == Polje.BEL) odCrnega = false;
+			}
+			if (odCrnega) crni += teritorij.size();
+			if (odBelega) beli += teritorij.size();
+		}
+		
+		// Prištejemo število ujetnikov
+		crni += steviloBelihUjetnikov;
+		beli += steviloCrnihUjetnikov;
+		
+		
+		// Prištejemo število žetonov (kitajska pravila)
+		for (int x = 0 ; x < sirina; x++) {
+			for (int y = 0; y < visina; y++) {
+				if (vrednost(x, y) == Polje.CRN) crni++;
+				else if (vrednost(x, y) == Polje.BEL) beli++;
+			}
+		}
+		
+		return new Koordinate(crni, beli);
+	}
 	
 	public Koordinate predstavnikSkupine(Koordinate koordinate) {
 		// Vrne koordinate predstavnika skupine podanega žetona
@@ -248,8 +518,7 @@ public class Igra {
 		case CRN:
 			return crneSkupine.find(koordinate);
 		case PRAZNO:
-			System.out.println("predstavnik praznega");
-			return null;
+			return teritoriji.find(koordinate);
 		default:
 			System.out.println("predstavnik defaulta");
 			return null;
@@ -323,6 +592,29 @@ public class Igra {
 		return sosednjaPolja;
 	}
 	
+	private GrupaZMejo poisciGrupo(Koordinate koordinate) {
+		Polje tip = vrednost(koordinate);
+		Set<Koordinate> grupa = new HashSet<Koordinate>();
+		Set<Koordinate> meja = new HashSet<Koordinate>();
+		Queue<Koordinate> zaObdelavo = new LinkedList<Koordinate>();
+		grupa.add(koordinate);
+		zaObdelavo.add(koordinate);
+		while (true) {
+			if (zaObdelavo.isEmpty()) break;
+			else {
+				Koordinate osrednjePolje = zaObdelavo.poll();
+				grupa.add(osrednjePolje);
+				for (Koordinate koordinateSosednjegaPolja : sosedi(osrednjePolje)) { 
+					Polje sosednjePolje = vrednost(koordinateSosednjegaPolja);
+					if (!grupa.contains(koordinateSosednjegaPolja)) {
+						if (sosednjePolje == tip) zaObdelavo.add(koordinateSosednjegaPolja);
+						else meja.add(koordinateSosednjegaPolja);
+					}
+				}
+			}
+		}
+		return new GrupaZMejo(tip, grupa, meja);
+	}
 	
 	public List<Poteza> moznePoteze() {
 		// Vrne seznam vseh moznih potez

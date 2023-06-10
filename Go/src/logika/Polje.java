@@ -1,5 +1,7 @@
 package logika;
 
+import logika.Igra.BarvaIgralca;
+
 public enum Polje {
 	BEL, CRN, PRAZNO;
 
@@ -12,6 +14,17 @@ public enum Polje {
 			return BEL;
 		case PRAZNO:
 			return PRAZNO;
+		default:
+			return null;
+		}
+	}
+	
+	public static Polje barvaZaZeton(BarvaIgralca barvaIgralca) {
+		switch (barvaIgralca) {
+		case BELI:
+			return BEL;
+		case CRNI:
+			return CRN;
 		default:
 			return null;
 		}
