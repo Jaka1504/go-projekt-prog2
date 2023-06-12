@@ -23,10 +23,18 @@ public class Inteligenca extends KdoIgra{
 	
 	public Poteza izberiPotezo(Igra igra) {
 		// Poišče najustreznejšo potezo za dano igro
+		/*
 		OcenjenaPoteza najboljsaPoteza = oceniMinimaxAlfaBeta(igra, 4);
 		return najboljsaPoteza.poteza;
+		*/
+		return nakljucnaPoteza(igra);
 	}
 
+	public Poteza nakljucnaPoteza(Igra igra) {
+		Random rand = new Random();
+		return igra.moznePoteze().get(0);
+	}
+	
 	private int oceniPolozaj(Igra igra) {
 		// Dani igri pripiše celoštevilsko vrednost, ki je tem višja, tem
 		// boljši je položaj črnega igralca.

@@ -210,12 +210,14 @@ public class Igra {
 		Koordinate koordinate = new Koordinate(x, y);
 		
 		// Če je poteza PASS
-		if (koordinate == Koordinate.PASS) {
+		if (koordinate.equals(Koordinate.PASS)) {
 			if (zadnjaPoteza == Koordinate.PASS) {
 				Koordinate rezultat = tocke();
 				if (rezultat.x() > rezultat.y()) stanje = Stanje.ZMAGA_CRNI;
 				else if (rezultat.x() < rezultat.y()) stanje = Stanje.ZMAGA_BELI;
 				else stanje = Stanje.ZMAGA_BELI; // TODO neodloceno dodaj
+				System.out.println("KONEC IGRE!");
+				System.out.println(rezultat);
 				return true;
 			}
 			naPotezi = BarvaIgralca.obrni(naPotezi);
@@ -223,12 +225,10 @@ public class Igra {
 			return true;
 		}
 		
+		// Če poteza ni PASS
 		if (vrednost(koordinate) == Polje.PRAZNO && stanje == Stanje.V_TEKU) {
 			// Preveri ko in samomor (nelegalni potezi)
-			if (!legalnostKo(koordinate)) {
-				System.out.println("ILLEGAL KO");
-				return false;
-			}
+			if (!legalnostKo(koordinate)) return false;
 			if (!legalnostSamomor(koordinate)) return false;
 			
 			// Postavi žeton
@@ -266,7 +266,7 @@ public class Igra {
 		// 
 		// Pravilo Ko je kršeno, če igralec poskuša igrati na zadnjo svobodo
 		// skupine od zadnjaPoteza, ta svoboda pa je ravno zadnjiUjetnik
-		if (zadnjaPoteza != null && zadnjaPoteza != Koordinate.PASS && zadnjiUjetnik != null) {
+		if (zadnjaPoteza != null && !zadnjaPoteza.equals(Koordinate.PASS) && zadnjiUjetnik != null) {
 			if (steviloSvobodSkupine(zadnjaPoteza) != 1) return true;
 			Koordinate edinaSvoboda;
 			if (naPotezi == BarvaIgralca.CRNI) {
@@ -275,19 +275,7 @@ public class Igra {
 			else {
 				edinaSvoboda = crneSvobode.get(crneSkupine.find(zadnjaPoteza)).iterator().next();
 			}
-			System.out.println();
-			System.out.print("Poteza: ");
-			System.out.println(koordinate);
-			System.out.print("Zadnja poteza: ");
-			System.out.println(zadnjaPoteza);
-			System.out.print("Zadnji ujetnik: ");
-			System.out.println(zadnjiUjetnik);
-			System.out.print("Edina svoboda: ");
-			System.out.println(edinaSvoboda);
-			System.out.println(edinaSvoboda == zadnjiUjetnik);
-			System.out.println(zadnjiUjetnik == koordinate);
 			if (edinaSvoboda.equals(koordinate) && zadnjiUjetnik.equals(koordinate)) {
-				System.out.println(" ================= Vrnil sem false ===============");
 				return false;
 			}
 		}
@@ -619,6 +607,7 @@ public class Igra {
 	public List<Poteza> moznePoteze() {
 		// Vrne seznam vseh moznih potez
 		List<Poteza> moznosti = new LinkedList<Poteza>();
+		moznosti.add(new Poteza(-1, -1));
 		for (int x = 0; x < sirina; x++) {
 			for (int y = 0 ; y < visina; y++) {
 				if (vrednost(x, y) == Polje.PRAZNO) moznosti.add(new Poteza(x, y));
