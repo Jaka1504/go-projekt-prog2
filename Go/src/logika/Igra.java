@@ -138,6 +138,14 @@ public class Igra {
 		return stanje;
 	}
 	
+	public int steviloCrnihUjetnihov() {
+		return steviloCrnihUjetnikov;
+	}
+	
+	public int steviloBelihUjetnikov() {
+		return steviloBelihUjetnikov;
+	}
+	
 	public Polje vrednost(int x, int y) {return tabela[y][x];}
 	
 	public Polje vrednost(Koordinate koordinate) {

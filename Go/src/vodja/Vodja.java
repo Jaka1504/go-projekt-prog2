@@ -22,8 +22,8 @@ public class Vodja {
 	public static Inteligenca belInteligenca;
 	
 	
-	public static void ustvariNovoIgro() {
-		igra = new Igra(7, 7);
+	public static void ustvariNovoIgro(int sirina, int visina) {
+		igra = new Igra(sirina, visina);
 		crnInteligenca = new Inteligenca();
 		belInteligenca = new Inteligenca();
 		okno.platno().nastaviIgro(igra);

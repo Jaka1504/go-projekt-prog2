@@ -6,11 +6,15 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import static java.lang.Math.min;
 
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
@@ -21,7 +25,7 @@ import splosno.Poteza;
 import vodja.Vodja;
 
 @SuppressWarnings("serial")
-public class Platno extends JPanel implements MouseListener {
+public class Platno extends JPanel implements MouseListener, ActionListener {
 	
 	protected Igra igra;
 	protected Stroke debelinaMreznihCrt;
@@ -31,6 +35,8 @@ public class Platno extends JPanel implements MouseListener {
 	protected Color barvaBelih;
 	protected Color barvaRobaBelih;
 	protected Color barvaOzadja;
+	
+	JButton pass;
 	
 	
 	public Platno(int sirina, int visina) {
@@ -45,7 +51,29 @@ public class Platno extends JPanel implements MouseListener {
 		barvaOzadja = new Color(210, 166, 121);
 		this.addMouseListener(this);
 		
+		pass = new JButton("PASS");
+		pass.addActionListener(this);
+		this.add(pass);
+		
 		setBackground(barvaOzadja);
+		
+		/*
+		JLabel napisZmage = new JLabel();
+		napisZmage.setBackground(Color.white);
+		napisZmage.setHorizontalAlignment(JLabel.CENTER);
+		
+		switch (igra.stanje()) {
+			case ZMAGA_CRNI:
+				System.out.println("Igra je končana");
+				napisZmage.setText("Zmagal je črni");
+			case ZMAGA_BELI:
+				napisZmage.setText("Zmagal je beli");
+			case V_TEKU:
+				napisZmage.setText("V teku");
+		}
+		this.add(napisZmage);
+		*/
+
 	}
 
 	public void nastaviIgro(Igra igra) {
@@ -124,7 +152,28 @@ public class Platno extends JPanel implements MouseListener {
 			}
 		}
 		
+		// UJETI ŽETONI
+		for (int i = 0; i < igra.steviloBelihUjetnikov(); i++) {
+			int ostanek = i % 3;
+			int xZetona = zaokrozi(razmikNaMrezi * (sirina + ostanek + 0.3333) + tlx);
+			int yZetona = zaokrozi(razmikNaMrezi * (0 + (i / 3) - 0.3333 + 0.5) + tly);
+			int premerZetona = zaokrozi(razmikNaMrezi * 0.6667);
+			g.setColor(barvaBelih);
+			g.fillOval(xZetona, yZetona, premerZetona, premerZetona);
+			g.setColor(barvaRobaBelih);
+			g.drawOval(xZetona, yZetona, premerZetona, premerZetona);
+		}
 		
+		for (int i = 0; i < igra.steviloCrnihUjetnihov(); i++) {
+			int ostanek = i % 3;
+			int xZetona = zaokrozi(razmikNaMrezi * (- ostanek - 2) + tlx);
+			int yZetona = zaokrozi(razmikNaMrezi * (0 + (i / 3) - 0.3333 + 0.5) + tly);
+			int premerZetona = zaokrozi(razmikNaMrezi * 0.6667);
+			g.setColor(barvaCrnih);
+			g.fillOval(xZetona, yZetona, premerZetona, premerZetona);
+			g.setColor(barvaRobaCrnih);
+			g.drawOval(xZetona, yZetona, premerZetona, premerZetona);
+		}
 		
 		// DEBUG:
 		// System.out.println(igra);
@@ -176,6 +225,15 @@ public class Platno extends JPanel implements MouseListener {
 
 	@Override
 	public void mouseExited(MouseEvent e) {	
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == pass) {
+			Poteza poteza = new Poteza(-1,-1);
+			Vodja.igrajClovekovoPotezo(poteza);
+		}
+		
 	}
 	
 }
