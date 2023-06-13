@@ -7,14 +7,19 @@ import logika.Igra;
 import logika.Igra.BarvaIgralca;
 import logika.Igra.Stanje;
 import logika.Koordinate;
-import logika.Polje;
 import splosno.KdoIgra;
 import splosno.Poteza;
 
 public class Inteligenca extends KdoIgra{
 	
+	protected MCTSVozlisce korenDrevesa;
+	protected Koordinate prejsnjaOdlocitev; 
+	
+	private static Random random = new Random(123456);
+	
 	public Inteligenca(String ime) {
 		super(ime);
+		korenDrevesa = null;
 	}
 	
 	public Inteligenca() {
@@ -23,168 +28,179 @@ public class Inteligenca extends KdoIgra{
 	
 	public Poteza izberiPotezo(Igra igra) {
 		// Poišče najustreznejšo potezo za dano igro
-		/*
-		OcenjenaPoteza najboljsaPoteza = oceniMinimaxAlfaBeta(igra, 4);
-		return najboljsaPoteza.poteza;
-		*/
-		return nakljucnaPoteza(igra);
+		
+		return MCTSAlgoritem(igra, 5000);
 	}
 
-	public Poteza nakljucnaPoteza(Igra igra) {
-		Random rand = new Random();
-		return igra.moznePoteze().get(0);
+	public static Poteza nakljucnaPoteza(Igra igra) {
+		List<Koordinate> poteze = igra.moznePoteze();
+		return poteze.get(random.nextInt(poteze.size())).poteza();
 	}
 	
-	private int oceniPolozaj(Igra igra) {
-		// Dani igri pripiše celoštevilsko vrednost, ki je tem višja, tem
-		// boljši je položaj črnega igralca.
+	public Poteza MCTSAlgoritem(Igra igra, long trajanje) {
+		// Poišče najboljšo potezo z MCTS algoritmom, ki ga izvaja `trajanje` milisekund časa
 		
-		int ocena = 0;
-		
-		// Ce je igre konec, bogato nagradimo zmagovalca
-		switch (igra.stanje()) {
-		case V_TEKU:
-			break;
-		case ZMAGA_BELI:
-			ocena += -10000;
-			break;
-		case ZMAGA_CRNI:
-			ocena += 10000;
-			break;
+		// Najprej poskrbimo za začetno drevo
+		if (korenDrevesa == null) {
+			// Ustvarimo koren drevesa
+			korenDrevesa = new MCTSVozlisce(igra, null);
 		}
-		
-		// Prestejemo svobode, preverimo ce je skupina v nevarnosti za lestev
-		int odbitekCrneSvobode = 0;
-		for (List<Koordinate> seznam : igra.crneSkupine()) {
-			Koordinate predstavnik = seznam.get(0);
-			int steviloSvobod = Math.min(igra.steviloSvobodSkupine(predstavnik), 4);
-			if (steviloSvobod == 1) {
-				if (igra.jeLestev(predstavnik)) ocena += -200;
+		else {
+			// Iz drevesa izluscimo uporabni del, njegov koren nastavimo za nov koren
+			MCTSVozlisce nasprotnikovoVozlisce = korenDrevesa.otroci.get(prejsnjaOdlocitev);
+			MCTSVozlisce novKoren = nasprotnikovoVozlisce.otroci.get(
+					igra.zadnjaPoteza()
+					);
+			if (novKoren != null) {
+				novKoren.stars = null; // pozabi prednike
+				korenDrevesa = novKoren;
 			}
-			odbitekCrneSvobode += - 50 / (steviloSvobod + 1);
+			else korenDrevesa = new MCTSVozlisce(igra, null);
 		}
-		ocena += odbitekCrneSvobode;
 		
-		int odbitekBeleSvobode = 0;
-		for (List<Koordinate> seznam : igra.beleSkupine() ) {
-			Koordinate predstavnik = seznam.get(0);
-			int steviloSvobod = Math.min(igra.steviloSvobodSkupine(predstavnik), 4);
-			if (steviloSvobod == 1) {
-				if (igra.jeLestev(predstavnik)) ocena += 200;
-			}
-			odbitekBeleSvobode += 50 / (steviloSvobod + 1);
+		// Dovoljen čas porabimo za MCTSRun-e
+		long koncniCas = System.currentTimeMillis() + trajanje;
+		int stevec = 0;
+		while (System.currentTimeMillis() < koncniCas) {
+			MCTSRun(korenDrevesa);
+			stevec++;
 		}
-		ocena += odbitekBeleSvobode;
 		
-		// Nocemo prevec zetonov na robu
-		for (int x = 0; x < igra.sirina(); x++) {
-			for (int y = 0 ; y < igra.visina(); y++) {
-				int oddaljenostOdRoba = Math.min(
-						Math.min(x, y),
-						Math.min(igra.sirina() - x - 1, igra.visina() - y - 1)
-						);
-				if (oddaljenostOdRoba < 2) {
-					int odbitekZaBlizinoRobu = 12 / (oddaljenostOdRoba + 1);
-					switch (igra.vrednost(x, y)) {
-					case BEL:
-						ocena += odbitekZaBlizinoRobu;
-						break;
-					case CRN:
-						ocena += -odbitekZaBlizinoRobu;
-						break;
-					case PRAZNO:
-						break;
-					}
+		// Vrnemo največkrat obiskano vozlišče, ki ni PASS
+		double max = 0;
+		MCTSVozlisce najboljsiOtrok = null;
+		MCTSVozlisce passOtrok = null;
+		for (MCTSVozlisce otrok : korenDrevesa.otroci.values()) {
+			if (otrok != null) {
+				if (otrok.igra.zadnjaPoteza().equals(Koordinate.PASS)) passOtrok = otrok;
+				else if (otrok.steviloObiskov > max) {
+					max = otrok.steviloObiskov;
+					najboljsiOtrok = otrok;
 				}
 			}
 		}
 		
-		// Vrnemo oceno
-		return ocena;
+		System.out.println(korenDrevesa.otroci.size());
+		System.out.println(korenDrevesa.igra.sirina() * korenDrevesa.igra.visina() * 0.2);
+		
+		// Late Game: če lahko igra le v 1/5 polj, ki jih je imela tabela na zacetku. Takrat dovolimo "predajo"
+		boolean lateGame = (korenDrevesa.otroci.size() < korenDrevesa.igra.sirina() * korenDrevesa.igra.visina() * 0.2);
+		
+		// Če je edina legalna poteza PASS, jo igramo
+		if (najboljsiOtrok == null) prejsnjaOdlocitev = Koordinate.PASS;
+		
+		// Če je več možnosti, vrnemo boljšo možnost med PASS in drugimi
+		else {
+			prejsnjaOdlocitev = 
+					(najboljsiOtrok.steviloObiskov >= passOtrok.steviloObiskov) ? 
+							najboljsiOtrok.igra.zadnjaPoteza() : Koordinate.PASS;
+		}
+		
+		// Če izgubljamo, dovolimo pass samo dokaj pozno v igri 
+		if (MCTSVozlisce.verjetnostZmage(korenDrevesa.igra) <= 0.5) {
+			if (!lateGame)
+				prejsnjaOdlocitev = najboljsiOtrok.igra.zadnjaPoteza();
+		}
+		
+		
+		
+		System.out.print("Na potezi: ");
+		System.out.println((igra.naPotezi() == BarvaIgralca.CRNI) ? "ČRNI" : "BELI");
+		System.out.print("Poteza: ");
+		System.out.println(prejsnjaOdlocitev);
+		System.out.print("Število MCTSRun-ov: ");
+		System.out.println(stevec);
+		System.out.print("Verjetnost zmage: ");
+		MCTSVozlisce izbranOtrok = korenDrevesa.otroci.get(prejsnjaOdlocitev); 
+		System.out.println(1 - izbranOtrok.steviloPricakovanihZmag / izbranOtrok.steviloObiskov);
+		System.out.println("======================================");
+		System.out.println();
+		
+		return prejsnjaOdlocitev.poteza();
 	}
 	
-	
-	
-	private OcenjenaPoteza oceniMinimaxAlfaBeta(Igra igra, int globina, int alfa, int beta) {
-		// Izvede algoritem Minimax z "alfa beta pruning"-om dane globine
-		boolean maximizirajociIgralec = (igra.naPotezi() == BarvaIgralca.CRNI);
-		if (globina == 0 || igra.stanje() != Stanje.V_TEKU) {
-			return new OcenjenaPoteza(oceniPolozaj(igra), null);
+	public void MCTSRun(MCTSVozlisce koren) {
+		// DEBUG
+		/*
+		if (koren.stars == null) {
+			System.out.println("=======================================================================================================================================================================================================================================================================================================================================================================================================================================================================");
+			for (MCTSVozlisce otrok : koren.otroci.values()) {
+				if (otrok != null) {
+					System.out.print(otrok.igra.zadnjaPoteza());
+					System.out.print(" | ");
+				}
+			}
+			System.out.println();
+			for (MCTSVozlisce otrok : koren.otroci.values()) {
+				if (otrok != null) {
+					double display = (double)otrok.steviloObiskov / koren.steviloObiskov;
+					System.out.format("%.3f", display);
+					System.out.print(" | ");
+				}
+			}
+			System.out.println();
+			System.out.println("=======================================================================================================================================================================================================================================================================================================================================================================================================================================================================");
+			System.out.println();
 		}
-		List<Poteza> prisiljenePoteze = igra.prisiljenePoteze();
-		List<Poteza> moznePoteze = igra.moznePoteze();
+		*/
 		
-		if (maximizirajociIgralec) {
-			int maximalnaOcena = Integer.MIN_VALUE;
-			Poteza najboljsaPoteza = null;
-			// Ce so prisiljene poteze, preverja le njih, ne spušča globine
-			if (prisiljenePoteze.size() > 0) {
-				for (Poteza moznaPoteza : prisiljenePoteze) {
-					Igra kopijaIgre = new Igra(igra);
-					kopijaIgre.odigraj(moznaPoteza);
-					int ocena = oceniMinimaxAlfaBeta(kopijaIgre, globina, alfa, beta).ocena;
-					if (ocena > maximalnaOcena) {
-						maximalnaOcena = ocena;
-						najboljsaPoteza = moznaPoteza;
-					}
-					alfa = Math.max(alfa, ocena);
-					if (beta < alfa) break;
+		// Če še obstajajo neraziskani otroci, naključnega med njimi razširimo
+		if (koren.igra.stanje() != Stanje.V_TEKU) {
+			double rezultat = MCTSVozlisce.verjetnostZmage(koren.igra);
+			if (rezultat != 0.5) rezultat = Math.round(rezultat);
+			// če v dani igri zmaga črni, je trba belemu en nivo višje povedati, da je storil napako
+			koren.posodobiRezultate(1 - rezultat);
+			return;
+		}
+		if (koren.neraziskaniOtroci.size() != 0) {
+			Koordinate potezaDoNakljucnegaOtroka = 
+					koren.neraziskaniOtroci.get(
+							random.nextInt(
+									koren.neraziskaniOtroci.size()
+									)
+							);
+			koren.neraziskaniOtroci.remove(potezaDoNakljucnegaOtroka);
+			Igra igraPriOtroku = new Igra(koren.igra); // globoka kopija
+			
+			// Če je poteza dovoljena nadaljujemo z MCTS
+			if (igraPriOtroku.odigraj(potezaDoNakljucnegaOtroka.poteza())) {
+				MCTSVozlisce nakljucenNeraziskanOtrok = new MCTSVozlisce(igraPriOtroku, koren);
+				koren.otroci.put(potezaDoNakljucnegaOtroka, nakljucenNeraziskanOtrok);
+				
+				// Odigra nakljucno igro
+				double izidNakljucneIgre = nakljucenNeraziskanOtrok.nakljucnoNadaljevanje();
+				
+				// Posodobi rezultate pri sebi in prednikih
+				nakljucenNeraziskanOtrok.posodobiRezultate(izidNakljucneIgre);
+			}
+			
+			// Če poteza ni dovoljena, tega otroka odstranimo
+			else if (igraPriOtroku.stanje() == Stanje.V_TEKU) {
+				koren.otroci.remove(potezaDoNakljucnegaOtroka);
+			}
+		}
+		
+		// Če so vsi otroci raziskani, izberemo otroka po formuli in
+		// nadaljujemo MCTS od tam.
+		else {
+			double najboljsiRezultat = 0;
+			MCTSVozlisce najboljsiOtrok = null;
+			for(MCTSVozlisce otrok : koren.otroci.values()) {
+				double rezultat = otrok.funkcijaIzbiranja();
+				if (rezultat > najboljsiRezultat) {
+					najboljsiRezultat = rezultat;
+					najboljsiOtrok = otrok;
 				}
 			}
 			
-			// Ce ni prisiljenih potez, preveri vse mozne poteze
-			else {
-				for (Poteza moznaPoteza : igra.moznePoteze()) {
-					Igra kopijaIgre = new Igra(igra);
-					kopijaIgre.odigraj(moznaPoteza);
-					int ocena = oceniMinimaxAlfaBeta(kopijaIgre, globina - 1, alfa, beta).ocena;
-					if (ocena > maximalnaOcena) {
-						maximalnaOcena = ocena;
-						najboljsaPoteza = moznaPoteza;
-					}
-					alfa = Math.max(alfa, ocena);
-					if (beta < alfa) break;
-				}
+			// Če nimamo nobenega otroka legalnega TODO
+			if (najboljsiOtrok == null) {
+				System.out.println("Koren nima otrok...");
 			}
-			return new OcenjenaPoteza(maximalnaOcena, najboljsaPoteza);
+			
+			// Ko najdemo najboljšega otroka, poženemo MCTS na njem
+			MCTSRun(najboljsiOtrok);
 		}
-		
-		else {
-			int minimalnaOcena = Integer.MAX_VALUE;
-			Poteza najboljsaPoteza = null;
-			if (prisiljenePoteze.size() > 0) {
-				for (Poteza moznaPoteza : prisiljenePoteze) {
-					Igra kopijaIgre = new Igra(igra);
-					kopijaIgre.odigraj(moznaPoteza);
-					int ocena = oceniMinimaxAlfaBeta(kopijaIgre, globina, alfa, beta).ocena;
-					if (ocena < minimalnaOcena) {
-						minimalnaOcena = ocena;
-						najboljsaPoteza = moznaPoteza;
-					}
-					beta = Math.min(beta, ocena);
-					if (beta < alfa) break;
-				}
-			}
-			else {
-				for (Poteza moznaPoteza : moznePoteze) {
-					Igra kopijaIgre = new Igra(igra);
-					kopijaIgre.odigraj(moznaPoteza);
-					int ocena = oceniMinimaxAlfaBeta(kopijaIgre, globina - 1, alfa, beta).ocena;
-					if (ocena < minimalnaOcena) {
-						minimalnaOcena = ocena;
-						najboljsaPoteza = moznaPoteza;
-					}
-					beta = Math.min(beta, ocena);
-					if (beta < alfa) break;
-				}
-			}
-			return new OcenjenaPoteza(minimalnaOcena, najboljsaPoteza);
-		}
-	}
-
-	private OcenjenaPoteza oceniMinimaxAlfaBeta(Igra igra, int globina) {
-		// Inicializira vrednosti alfa in beta ter požene Minimax
-		return oceniMinimaxAlfaBeta(igra, globina, Integer.MIN_VALUE, Integer.MAX_VALUE);
 	}
 	
 
