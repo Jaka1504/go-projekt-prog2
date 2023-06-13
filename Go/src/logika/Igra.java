@@ -71,7 +71,6 @@ public class Igra {
 		crneSvobode = new HashMap<Koordinate, Set<Koordinate>>();
 		beleSvobode = new HashMap<Koordinate, Set<Koordinate>>();
 		mejeTeritorijev = new HashMap<Koordinate, Set<Koordinate>>();
-		mejeTeritorijev.put(teritoriji.find(prvoPolje), new HashSet<Koordinate>());
 		
 		zadnjaPoteza = null;
 		zadnjiUjetnik = null;
@@ -176,33 +175,27 @@ public class Igra {
 		return beleSvobode;
 	}
 	
-	public Koordinate zadnjaPoteza() {
-		return zadnjaPoteza;
-	}
-	
 	@Override
 	public String toString() {
 		// Tekstovni prikaz igre za debugganje
 		String prikaz = "";
 		for (int i = 0; i < visina; i++) {
 			for (int j = 0 ; j < sirina; j++) {
-				if (tabela[i][j] == null) prikaz += " #"; else
+				if (tabela[i][j] == null) prikaz += "#"; else
 				switch(tabela[i][j]) {
 					case BEL:
-						prikaz += " O";
+						prikaz += "B";
 						break;
 					case CRN:
-						prikaz += " X";
+						prikaz += "C";
 						break;
 					case PRAZNO:
-						prikaz += " -";
+						prikaz += "-";
 						break;
 					}
 				}
 			prikaz += "\n";
 			}
-		prikaz += "Na potezi: ";
-		prikaz += (naPotezi == BarvaIgralca.CRNI) ? "črni\n" : "beli\n";
 		prikaz += "Stanje: ";
 		switch (stanje) {
 		case ZMAGA_BELI:
@@ -212,7 +205,7 @@ public class Igra {
 			prikaz += "v teku";
 			break;
 		case ZMAGA_CRNI:
-			prikaz += "zmaga črni";
+			prikaz += "zmaga crni";
 			break;
 		}
 		return prikaz;
@@ -224,8 +217,6 @@ public class Igra {
 		int y = poteza.y();
 		Koordinate koordinate = new Koordinate(x, y);
 		
-		if (stanje != Stanje.V_TEKU) return false;
-		
 		// Če je poteza PASS
 		if (koordinate.equals(Koordinate.PASS)) {
 			if (zadnjaPoteza == Koordinate.PASS) {
@@ -233,6 +224,8 @@ public class Igra {
 				if (rezultat.x() > rezultat.y()) stanje = Stanje.ZMAGA_CRNI;
 				else if (rezultat.x() < rezultat.y()) stanje = Stanje.ZMAGA_BELI;
 				else stanje = Stanje.ZMAGA_BELI; // TODO neodloceno dodaj
+				System.out.println("KONEC IGRE!");
+				System.out.println(rezultat);
 				return true;
 			}
 			naPotezi = BarvaIgralca.obrni(naPotezi);
@@ -241,7 +234,7 @@ public class Igra {
 		}
 		
 		// Če poteza ni PASS
-		if (vrednost(koordinate) == Polje.PRAZNO) {
+		if (vrednost(koordinate) == Polje.PRAZNO && stanje == Stanje.V_TEKU) {
 			// Preveri ko in samomor (nelegalni potezi)
 			if (!legalnostKo(koordinate)) return false;
 			if (!legalnostSamomor(koordinate)) return false;
@@ -482,11 +475,6 @@ public class Igra {
 	// =================== Pomožne metode ===================
 	
 	public Koordinate tocke() {
-		/*
-		System.out.println(this);
-		System.out.println(teritoriji);
-		System.out.println(mejeTeritorijev);
-		*/
 		int crni = 0;
 		int beli = 0;
 		
@@ -624,17 +612,30 @@ public class Igra {
 		return new GrupaZMejo(tip, grupa, meja);
 	}
 	
-	public List<Koordinate> moznePoteze() {
+	public List<Poteza> moznePoteze() {
 		// Vrne seznam vseh moznih potez
-		List<Koordinate> moznosti = new LinkedList<Koordinate>();
-		moznosti.add(Koordinate.PASS);
+		List<Poteza> moznosti = new LinkedList<Poteza>();
+		moznosti.add(new Poteza(-1, -1));
 		for (int x = 0; x < sirina; x++) {
 			for (int y = 0 ; y < visina; y++) {
-				if (vrednost(x, y) == Polje.PRAZNO) moznosti.add(new Koordinate(x, y));
+				if (vrednost(x, y) == Polje.PRAZNO) moznosti.add(new Poteza(x, y));
 			}
 		}
-		// Random rand = new Random();
-		// Collections.shuffle(moznosti, rand);
+		Random rand = new Random();
+		Collections.shuffle(moznosti, rand);
 		return moznosti;		
+	}
+	
+	public List<Poteza> prisiljenePoteze() {
+		// Vrne seznam prisiljenih potez, t.j. takih, ki igrajo na zadnjo svobodo
+		// neke skupine, bodisi da jo rešijo, bodisi poberejo
+		List<Poteza> moznosti = new LinkedList<Poteza>();
+		for (Set<Koordinate> svobode: crneSvobode.values()) {
+			if (svobode.size() == 1) {
+				Koordinate svoboda = svobode.iterator().next();
+				moznosti.add(new Poteza(svoboda.x(), svoboda.y()));
+			}
+		}
+		return moznosti;
 	}
 }

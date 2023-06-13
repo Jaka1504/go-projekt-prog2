@@ -8,7 +8,6 @@ import javax.swing.SwingWorker;
 import gui.Okno;
 import inteligenca.Inteligenca;
 import logika.Igra;
-import logika.Igra.BarvaIgralca;
 import splosno.Poteza;
 
 public class Vodja {
@@ -18,14 +17,18 @@ public class Vodja {
 	public static Okno okno;
 	public static Igra igra = null;
 	public static boolean clovekNaVrsti = false;
-	public static Inteligenca crnInteligenca;
-	public static Inteligenca belInteligenca;
+	public static Inteligenca inteligenca = new Inteligenca();
 	
 	
+<<<<<<< main
 	public static void ustvariNovoIgro(int sirina, int visina) {
 		igra = new Igra(sirina, visina);
 		crnInteligenca = new Inteligenca();
 		belInteligenca = new Inteligenca();
+=======
+	public static void ustvariNovoIgro() {
+		igra = new Igra();
+>>>>>>> 2c2520a Implementacija algoritma "Monte Carlo Tree Search"
 		okno.platno().nastaviIgro(igra);
 		igramo();
 	}
@@ -46,8 +49,6 @@ public class Vodja {
 				break;
 			}	
 		}
-		
-		else System.out.println(igra.tocke());
 	}
 
 	public static void igrajRacunalnikovoPotezo() {
@@ -56,7 +57,6 @@ public class Vodja {
 		
 			@Override
 			protected Poteza doInBackground() {
-				Inteligenca inteligenca = (igra.naPotezi() == BarvaIgralca.CRNI) ? crnInteligenca : belInteligenca; 
 				return inteligenca.izberiPotezo(igra);
 			}
 		
