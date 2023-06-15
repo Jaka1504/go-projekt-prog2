@@ -29,7 +29,7 @@ public class Inteligenca extends KdoIgra{
 	public Poteza izberiPotezo(Igra igra) {
 		// Poišče najustreznejšo potezo za dano igro
 		
-		return MCTSAlgoritem(igra, 5000);
+		return MCTSAlgoritem(igra, 2000);
 	}
 
 	public static Poteza nakljucnaPoteza(Igra igra) {
@@ -80,8 +80,10 @@ public class Inteligenca extends KdoIgra{
 			}
 		}
 		
+		/*
 		System.out.println(korenDrevesa.otroci.size());
 		System.out.println(korenDrevesa.igra.sirina() * korenDrevesa.igra.visina() * 0.2);
+		*/
 		
 		// Late Game: če lahko igra le v 1/5 polj, ki jih je imela tabela na zacetku. Takrat dovolimo "predajo"
 		boolean lateGame = (korenDrevesa.otroci.size() < korenDrevesa.igra.sirina() * korenDrevesa.igra.visina() * 0.2);
@@ -110,8 +112,10 @@ public class Inteligenca extends KdoIgra{
 		System.out.println(prejsnjaOdlocitev);
 		System.out.print("Število MCTSRun-ov: ");
 		System.out.println(stevec);
+		MCTSVozlisce izbranOtrok = korenDrevesa.otroci.get(prejsnjaOdlocitev);
+		System.out.print("Trenutni rezultat: ");
+		System.out.println(izbranOtrok.igra.tocke());
 		System.out.print("Verjetnost zmage: ");
-		MCTSVozlisce izbranOtrok = korenDrevesa.otroci.get(prejsnjaOdlocitev); 
 		System.out.println(1 - izbranOtrok.steviloPricakovanihZmag / izbranOtrok.steviloObiskov);
 		System.out.println("======================================");
 		System.out.println();
@@ -144,14 +148,15 @@ public class Inteligenca extends KdoIgra{
 		}
 		*/
 		
-		// Če še obstajajo neraziskani otroci, naključnega med njimi razširimo
+		// Če smo v terminalnem stanju, le posodobimo prednike
 		if (koren.igra.stanje() != Stanje.V_TEKU) {
 			double rezultat = MCTSVozlisce.verjetnostZmage(koren.igra);
-			if (rezultat != 0.5) rezultat = Math.round(rezultat);
+			// if (rezultat != 0.5) rezultat = Math.round(rezultat);
 			// če v dani igri zmaga črni, je trba belemu en nivo višje povedati, da je storil napako
-			koren.posodobiRezultate(1 - rezultat);
+			koren.posodobiRezultate(rezultat);
 			return;
 		}
+		// Če še obstajajo neraziskani otroci, naključnega med njimi razširimo
 		if (koren.neraziskaniOtroci.size() != 0) {
 			Koordinate potezaDoNakljucnegaOtroka = 
 					koren.neraziskaniOtroci.get(

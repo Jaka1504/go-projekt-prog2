@@ -13,6 +13,9 @@ import java.util.Set;
 import splosno.Poteza;
 
 public class Igra {
+	
+	// =================== Pomožni enum razredi =================== 
+	
 	public enum BarvaIgralca {
 		CRNI, BELI;
 		
@@ -26,11 +29,14 @@ public class Igra {
 		ZMAGA_CRNI, ZMAGA_BELI, V_TEKU
 	}
 	
+	// =================== Atributi razreda =================== 
+	
 	protected BarvaIgralca naPotezi;
 	protected int sirina;
 	protected int visina;
 	protected Stanje stanje;
 	protected Polje[][] tabela;
+	protected List<Koordinate> moznePoteze;
 	protected DisjointSets<Koordinate> crneSkupine;
 	protected DisjointSets<Koordinate> beleSkupine;
 	protected DisjointSets<Koordinate> teritoriji;
@@ -41,7 +47,8 @@ public class Igra {
 	protected Koordinate zadnjiUjetnik;
 	protected int steviloCrnihUjetnikov;
 	protected int steviloBelihUjetnikov;
-	
+
+	// =================== Konstruktorji =================== 
 	
 	public Igra(int sirina, int visina) {
 		naPotezi = BarvaIgralca.CRNI; // začne črni
@@ -55,6 +62,8 @@ public class Igra {
 			}
 		}
 		
+		moznePoteze = new LinkedList<Koordinate>();
+		
 		crneSkupine = new ListSets<Koordinate>();
 		beleSkupine = new ListSets<Koordinate>();
 		
@@ -63,10 +72,12 @@ public class Igra {
 		for (int y = 0; y < visina; y++) {
 			for (int x = 0 ; x < sirina; x++) {
 				Koordinate koordinate = new Koordinate(x, y); 
+				moznePoteze.add(koordinate);
 				teritoriji.add(koordinate);
 				teritoriji.union(prvoPolje, koordinate);
 			}
 		}
+		moznePoteze.add(Koordinate.PASS);
 		
 		crneSvobode = new HashMap<Koordinate, Set<Koordinate>>();
 		beleSvobode = new HashMap<Koordinate, Set<Koordinate>>();
@@ -97,6 +108,8 @@ public class Igra {
 				this.tabela[i][j] = igra.tabela[i][j];
 			}
 		}
+		this.moznePoteze = new LinkedList<Koordinate>(igra.moznePoteze);
+		
 		this.crneSkupine = igra.crneSkupine.deepCopy();
 		this.beleSkupine = igra.beleSkupine.deepCopy();
 		this.teritoriji = igra.teritoriji.deepCopy();
@@ -121,6 +134,8 @@ public class Igra {
 		this.steviloCrnihUjetnikov = igra.steviloCrnihUjetnikov;
 		this.steviloBelihUjetnikov = igra.steviloBelihUjetnikov;
 	}
+	
+	// =================== Metode za dostop do atributov in njihovo urejanje =================== 
 	
 	public int sirina() {
 		return sirina;
@@ -160,6 +175,10 @@ public class Igra {
 		tabela[y][x] = vrednost;
 	}
 	
+	public List<Koordinate> moznePoteze() {
+		return moznePoteze;
+	}
+	
 	public DisjointSets<Koordinate> beleSkupine() {
 		return beleSkupine;
 	}
@@ -180,43 +199,7 @@ public class Igra {
 		return zadnjaPoteza;
 	}
 	
-	@Override
-	public String toString() {
-		// Tekstovni prikaz igre za debugganje
-		String prikaz = "";
-		for (int i = 0; i < visina; i++) {
-			for (int j = 0 ; j < sirina; j++) {
-				if (tabela[i][j] == null) prikaz += " #"; else
-				switch(tabela[i][j]) {
-					case BEL:
-						prikaz += " O";
-						break;
-					case CRN:
-						prikaz += " X";
-						break;
-					case PRAZNO:
-						prikaz += " -";
-						break;
-					}
-				}
-			prikaz += "\n";
-			}
-		prikaz += "Na potezi: ";
-		prikaz += (naPotezi == BarvaIgralca.CRNI) ? "črni\n" : "beli\n";
-		prikaz += "Stanje: ";
-		switch (stanje) {
-		case ZMAGA_BELI:
-			prikaz += "zmaga beli";
-			break;
-		case V_TEKU:
-			prikaz += "v teku";
-			break;
-		case ZMAGA_CRNI:
-			prikaz += "zmaga črni";
-			break;
-		}
-		return prikaz;
-	}
+	// =================== GLAVNA METODA: odigraj =================== 
 	
 	public boolean odigraj(Poteza poteza) {
 		// Poskusi odigrati potezo, vrne true če mu to uspe, false sicer
@@ -228,16 +211,19 @@ public class Igra {
 		
 		// Če je poteza PASS
 		if (koordinate.equals(Koordinate.PASS)) {
-			if (zadnjaPoteza == Koordinate.PASS) {
+			if (zadnjaPoteza != null && zadnjaPoteza.equals(Koordinate.PASS)) {
 				Koordinate rezultat = tocke();
 				if (rezultat.x() > rezultat.y()) stanje = Stanje.ZMAGA_CRNI;
 				else if (rezultat.x() < rezultat.y()) stanje = Stanje.ZMAGA_BELI;
 				else stanje = Stanje.ZMAGA_BELI; // TODO neodloceno dodaj
+				naPotezi = BarvaIgralca.obrni(naPotezi);
 				return true;
 			}
-			naPotezi = BarvaIgralca.obrni(naPotezi);
-			zadnjaPoteza = Koordinate.PASS;
-			return true;
+			else {
+				naPotezi = BarvaIgralca.obrni(naPotezi);
+				zadnjaPoteza = Koordinate.PASS;
+				return true;
+			}
 		}
 		
 		// Če poteza ni PASS
@@ -318,6 +304,7 @@ public class Igra {
 	private void postaviZeton(Koordinate koordinate) {
 		Polje barvaZaNovZeton = (naPotezi == BarvaIgralca.BELI) ? Polje.BEL : Polje.CRN;
 		nastaviVrednost(koordinate, barvaZaNovZeton);
+		moznePoteze.remove(koordinate);
 	}
 	
 	private void lokalnoPosodobiSkupineInSvobode(Koordinate koordinate) {
@@ -434,6 +421,8 @@ public class Igra {
 	
 	private void globalnoPosodobiVseGrupe() {
 		// Počisti stare podatke
+		moznePoteze.clear();
+		
 		crneSkupine.clear();
 		beleSkupine.clear();
 		teritoriji.clear();
@@ -443,6 +432,8 @@ public class Igra {
 		mejeTeritorijev.clear();
 		
 		// Na novo poracuna stvari
+		moznePoteze = poisciMoznePoteze();
+		
 		for (int x = 0 ; x < sirina; x++) {
 			for (int y = 0; y < visina; y++) {
 				Koordinate koordinate = new Koordinate(x, y);
@@ -551,37 +542,6 @@ public class Igra {
 		
 	}
 	
-	public boolean jeLestev(Koordinate koordinate) {
-		// Vrne true, natanko tedaj ko je zeton v nevarnosti za lestev. To
-		// je takrat, ko ima njegova skupina le eno svobodo, ta pa meji na
-		// nasprotnikov žeton
-		Koordinate predstavnik = predstavnikSkupine(koordinate);
-		if (steviloSvobodSkupine(koordinate) != 1) return false;
-		else {
-			switch (vrednost(koordinate)) {
-			case BEL:
-				Koordinate belaSvoboda = beleSvobode.get(predstavnik).iterator().next();
-				for (Koordinate sosed : sosedi(belaSvoboda)) {
-					if (vrednost(sosed) == Polje.CRN) return true;
-				}
-				return false;
-			case CRN:
-				Koordinate crnaSvoboda = crneSvobode.get(predstavnik).iterator().next();
-				for (Koordinate sosed : sosedi(crnaSvoboda)) {
-					if (vrednost(sosed) == Polje.BEL) return true;
-				}
-				return false;
-			case PRAZNO:
-				System.out.println("lestev praznega");
-				return false;
-			default:
-				System.out.println("lestev defaulta");
-				return false;
-			
-			}
-		}
-	}
-	
 	private Set<Koordinate> sosedi(Koordinate koordinate) {
 		// Vrne mnozico sosedov danega polja
 		int x = koordinate.x();
@@ -624,7 +584,7 @@ public class Igra {
 		return new GrupaZMejo(tip, grupa, meja);
 	}
 	
-	public List<Koordinate> moznePoteze() {
+	public List<Koordinate> poisciMoznePoteze() {
 		// Vrne seznam vseh moznih potez
 		List<Koordinate> moznosti = new LinkedList<Koordinate>();
 		moznosti.add(Koordinate.PASS);
@@ -633,8 +593,46 @@ public class Igra {
 				if (vrednost(x, y) == Polje.PRAZNO) moznosti.add(new Koordinate(x, y));
 			}
 		}
-		// Random rand = new Random();
-		// Collections.shuffle(moznosti, rand);
 		return moznosti;		
+	}
+
+	// =================== Za v pomoč pri debugganju =================== 
+	
+	@Override
+	public String toString() {
+		// Tekstovni prikaz igre za debugganje
+		String prikaz = "";
+		for (int i = 0; i < visina; i++) {
+			for (int j = 0 ; j < sirina; j++) {
+				if (tabela[i][j] == null) prikaz += " #"; else
+				switch(tabela[i][j]) {
+					case BEL:
+						prikaz += " O";
+						break;
+					case CRN:
+						prikaz += " X";
+						break;
+					case PRAZNO:
+						prikaz += " -";
+						break;
+					}
+				}
+			prikaz += "\n";
+			}
+		prikaz += "Na potezi: ";
+		prikaz += (naPotezi == BarvaIgralca.CRNI) ? "črni\n" : "beli\n";
+		prikaz += "Stanje: ";
+		switch (stanje) {
+		case ZMAGA_BELI:
+			prikaz += "zmaga beli";
+			break;
+		case V_TEKU:
+			prikaz += "v teku";
+			break;
+		case ZMAGA_CRNI:
+			prikaz += "zmaga črni";
+			break;
+		}
+		return prikaz;
 	}
 }

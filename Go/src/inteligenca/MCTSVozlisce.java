@@ -95,6 +95,8 @@ public class MCTSVozlisce {
 		Koordinate rezultat = igra.tocke();
 		double razmerjeTock = (double)rezultat.x() / (rezultat.x() + rezultat.y());
 		if (igra.naPotezi() == BarvaIgralca.BELI) razmerjeTock = 1 - razmerjeTock;
+		// Ker tedaj gledamo iz perspektive tistega, ki je naredil potezo, ki je vodila do tega polozaja
+		// if (igra.stanje() != Stanje.V_TEKU) razmerjeTock = 1 - razmerjeTock;
 		return f(razmerjeTock);
 	}
 	

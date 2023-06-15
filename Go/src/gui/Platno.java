@@ -230,8 +230,10 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == pass) {
-			Poteza poteza = new Poteza(-1,-1);
-			Vodja.igrajClovekovoPotezo(poteza);
+			if (Vodja.clovekNaVrsti) {
+				Poteza poteza = new Poteza(-1,-1);
+				Vodja.igrajClovekovoPotezo(poteza);
+			}
 		}
 		
 	}
