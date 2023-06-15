@@ -199,6 +199,46 @@ public class Igra {
 		return zadnjaPoteza;
 	}
 	
+	/*
+	@Override
+	public String toString() {
+		// Tekstovni prikaz igre za debugganje
+		String prikaz = "";
+		for (int i = 0; i < visina; i++) {
+			for (int j = 0 ; j < sirina; j++) {
+				if (tabela[i][j] == null) prikaz += " #"; else
+				switch(tabela[i][j]) {
+					case BEL:
+						prikaz += " O";
+						break;
+					case CRN:
+						prikaz += " X";
+						break;
+					case PRAZNO:
+						prikaz += " -";
+						break;
+					}
+				}
+			prikaz += "\n";
+			}
+		prikaz += "Na potezi: ";
+		prikaz += (naPotezi == BarvaIgralca.CRNI) ? "črni\n" : "beli\n";
+		prikaz += "Stanje: ";
+		switch (stanje) {
+		case ZMAGA_BELI:
+			prikaz += "zmaga beli";
+			break;
+		case V_TEKU:
+			prikaz += "v teku";
+			break;
+		case ZMAGA_CRNI:
+			prikaz += "zmaga črni";
+			break;
+		}
+		return prikaz;
+	}
+	*/
+	
 	// =================== GLAVNA METODA: odigraj =================== 
 	
 	public boolean odigraj(Poteza poteza) {
@@ -216,12 +256,14 @@ public class Igra {
 				if (rezultat.x() > rezultat.y()) stanje = Stanje.ZMAGA_CRNI;
 				else if (rezultat.x() < rezultat.y()) stanje = Stanje.ZMAGA_BELI;
 				else stanje = Stanje.ZMAGA_BELI; // TODO neodloceno dodaj
+				
 				naPotezi = BarvaIgralca.obrni(naPotezi);
 				return true;
 			}
 			else {
 				naPotezi = BarvaIgralca.obrni(naPotezi);
 				zadnjaPoteza = Koordinate.PASS;
+
 				return true;
 			}
 		}
@@ -584,6 +626,7 @@ public class Igra {
 		return new GrupaZMejo(tip, grupa, meja);
 	}
 	
+
 	public List<Koordinate> poisciMoznePoteze() {
 		// Vrne seznam vseh moznih potez
 		List<Koordinate> moznosti = new LinkedList<Koordinate>();
@@ -593,6 +636,7 @@ public class Igra {
 				if (vrednost(x, y) == Polje.PRAZNO) moznosti.add(new Koordinate(x, y));
 			}
 		}
+
 		return moznosti;		
 	}
 
@@ -635,4 +679,5 @@ public class Igra {
 		}
 		return prikaz;
 	}
+	
 }

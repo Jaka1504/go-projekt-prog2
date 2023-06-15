@@ -29,7 +29,7 @@ public class Inteligenca extends KdoIgra{
 	public Poteza izberiPotezo(Igra igra) {
 		// Poišče najustreznejšo potezo za dano igro
 		
-		return MCTSAlgoritem(igra, 2000);
+		return MCTSAlgoritem(igra, 5000);
 	}
 
 	public static Poteza nakljucnaPoteza(Igra igra) {
@@ -112,6 +112,7 @@ public class Inteligenca extends KdoIgra{
 		System.out.println(prejsnjaOdlocitev);
 		System.out.print("Število MCTSRun-ov: ");
 		System.out.println(stevec);
+
 		MCTSVozlisce izbranOtrok = korenDrevesa.otroci.get(prejsnjaOdlocitev);
 		System.out.print("Trenutni rezultat: ");
 		System.out.println(izbranOtrok.igra.tocke());
@@ -147,7 +148,7 @@ public class Inteligenca extends KdoIgra{
 			System.out.println();
 		}
 		*/
-		
+
 		// Če smo v terminalnem stanju, le posodobimo prednike
 		if (koren.igra.stanje() != Stanje.V_TEKU) {
 			double rezultat = MCTSVozlisce.verjetnostZmage(koren.igra);
@@ -157,6 +158,7 @@ public class Inteligenca extends KdoIgra{
 			return;
 		}
 		// Če še obstajajo neraziskani otroci, naključnega med njimi razširimo
+
 		if (koren.neraziskaniOtroci.size() != 0) {
 			Koordinate potezaDoNakljucnegaOtroka = 
 					koren.neraziskaniOtroci.get(

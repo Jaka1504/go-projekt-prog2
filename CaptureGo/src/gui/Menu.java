@@ -19,6 +19,7 @@ public class Menu extends JMenuBar implements ActionListener{
 	JMenuItem igraClovekClovek;
 	JMenuItem igraRacunalnikRacunalnik;
 	
+	
 	public Menu() {
 		super();
 		JMenu menuIgra = new JMenu("Ustvari novo igro");	// naredi meni za novo igro
