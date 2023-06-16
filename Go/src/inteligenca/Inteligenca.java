@@ -88,8 +88,11 @@ public class Inteligenca extends KdoIgra{
 		// Late Game: če lahko igra le v 1/5 polj, ki jih je imela tabela na zacetku. Takrat dovolimo "predajo"
 		boolean lateGame = (korenDrevesa.otroci.size() < korenDrevesa.igra.sirina() * korenDrevesa.igra.visina() * 0.2);
 		
+		// Če PASS še ni raziskan, vrne najboljšo potezo med ostalimi
+		if (passOtrok == null) prejsnjaOdlocitev = najboljsiOtrok.igra.zadnjaPoteza();
+		
 		// Če je edina legalna poteza PASS, jo igramo
-		if (najboljsiOtrok == null) prejsnjaOdlocitev = Koordinate.PASS;
+		else if (najboljsiOtrok == null) prejsnjaOdlocitev = Koordinate.PASS;
 		
 		// Če je več možnosti, vrnemo boljšo možnost med PASS in drugimi
 		else {

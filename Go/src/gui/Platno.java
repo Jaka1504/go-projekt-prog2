@@ -3,6 +3,7 @@ package gui;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
@@ -19,6 +20,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 
 import logika.Igra;
 import logika.Polje;
@@ -38,8 +40,9 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 	protected Color barvaOzadja;
 	
 	JButton pass;
-	JButton novaIgra;
+	JButton razveljavi;
 	
+	JLabel napis;
 	
 	public Platno(int sirina, int visina) {
 		super();		// pokliče konstruktor od JPanel
@@ -58,28 +61,33 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		// Gumb pass
 		pass = new JButton("PASS");
 		pass.addActionListener(this);
-		this.add(pass);
 		
-		// 
-		JLabel napisZmage = new JLabel();
-		napisZmage.setBackground(Color.white);
-		napisZmage.setHorizontalAlignment(JLabel.CENTER);
+		// Gumb razveljavi
+		razveljavi = new JButton("RAZVELJAVI");
+		razveljavi.addActionListener(this);
+		
+		
+		// Napis
+		napis = new JLabel();
+		napis.setBackground(new Color(255,255,255,127));
+		napis.setOpaque(true);
+		napis.setHorizontalAlignment(JLabel.CENTER);
+		napis.setFont(new Font("Serif", Font.PLAIN, 20));
 		
 		if (igra == null) {
-			napisZmage.setText("Prični novo igro");
+			napis.setText("Prični novo igro");
 		}
 		else {
 			switch (igra.stanje()) {
 				case ZMAGA_CRNI:
 					System.out.println("Igra je končana");
-					napisZmage.setText("Zmagal je črni");
+					napis.setText("Zmagal je črni");
 				case ZMAGA_BELI:
-					napisZmage.setText("Zmagal je beli");
+					napis.setText("Zmagal je beli");
 				case V_TEKU:
-					napisZmage.setText("V teku");
+					napis.setText("V teku");
 			}
 		}
-		this.add(napisZmage);
 
 	}
 
@@ -161,9 +169,9 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		
 		// UJETI ŽETONI
 		for (int i = 0; i < igra.steviloBelihUjetnikov(); i++) {
-			int ostanek = i % 3;
+			int ostanek = i % 4;
 			int xZetona = zaokrozi(razmikNaMrezi * (sirina + ostanek + 0.3333) + tlx);
-			int yZetona = zaokrozi(razmikNaMrezi * (0 + (i / 3) - 0.3333 + 0.5) + tly);
+			int yZetona = zaokrozi(razmikNaMrezi * (0 + (i / 4) - 0.3333 + 0.5) + tly);
 			int premerZetona = zaokrozi(razmikNaMrezi * 0.6667);
 			g.setColor(barvaBelih);
 			g.fillOval(xZetona, yZetona, premerZetona, premerZetona);
@@ -172,15 +180,46 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		}
 		
 		for (int i = 0; i < igra.steviloCrnihUjetnihov(); i++) {
-			int ostanek = i % 3;
+			int ostanek = i % 4;
 			int xZetona = zaokrozi(razmikNaMrezi * (- ostanek - 2) + tlx);
-			int yZetona = zaokrozi(razmikNaMrezi * (0 + (i / 3) - 0.3333 + 0.5) + tly);
+			int yZetona = zaokrozi(razmikNaMrezi * (0 + (i / 4) - 0.3333 + 0.5) + tly);
 			int premerZetona = zaokrozi(razmikNaMrezi * 0.6667);
 			g.setColor(barvaCrnih);
 			g.fillOval(xZetona, yZetona, premerZetona, premerZetona);
 			g.setColor(barvaRobaCrnih);
 			g.drawOval(xZetona, yZetona, premerZetona, premerZetona);
 		}
+		
+		// Gumb PASS
+		pass.setBounds(
+				(int) (tlx + (sirina - 2) * razmikNaMrezi / 2.0 - razveljavi.getPreferredSize().getWidth()),
+				(int) (tly + (visina - 0.5) * razmikNaMrezi),
+                (int) razveljavi.getPreferredSize().getWidth(),
+                (int) pass.getPreferredSize().getHeight());
+		this.add(pass);
+		
+		// Gumb RAZVELJAVI
+		razveljavi.setBounds(
+				(int) (tlx + (sirina) * razmikNaMrezi / 2.0),
+				(int) (tly + (visina - 0.5) * razmikNaMrezi),
+                (int) razveljavi.getPreferredSize().getWidth(),
+                (int) razveljavi.getPreferredSize().getHeight());
+		this.add(razveljavi);
+		
+		// Napis
+		napis.setBounds(
+				(int) (tlx),
+				(int) (tly - 0.5 * razmikNaMrezi - napis.getPreferredSize().getHeight()),
+                (int) (sirina - 1) * razmikNaMrezi,
+                (int) napis.getPreferredSize().getHeight());
+		/*
+		napis.setBorder(new EmptyBorder(
+				5,
+				(int) ((sirina * razmikNaMrezi - napis.getPreferredSize().getWidth()) / 2.0),
+				5,
+				(int) ((sirina * razmikNaMrezi - napis.getPreferredSize().getWidth()) / 2.0)));//top,left,bottom,right
+		*/
+		this.add(napis);
 		
 		// DEBUG:
 		// System.out.println(igra);
@@ -242,7 +281,11 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 				Vodja.igrajClovekovoPotezo(poteza);
 			}
 		}
-		
+		if (e.getSource() == razveljavi) {
+			if (Vodja.clovekNaVrsti) {
+				Vodja.undo();
+			}
+		}
 	}
 	
 }

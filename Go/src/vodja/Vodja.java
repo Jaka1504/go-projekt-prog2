@@ -97,7 +97,6 @@ public class Vodja {
 		while (!zgodovina.empty()) {
 			KompaktenZapisIgre zeljenaIgra = zgodovina.pop();
 			if (vrstiIgralcev.get(zeljenaIgra.naPotezi()) == VrstaIgralca.CLOVEK) {
-				System.out.println("Našel sem pravo igro");
 				ustvariNovoIgro(new Igra(zeljenaIgra), zgodovina);
 				break;
 			}
