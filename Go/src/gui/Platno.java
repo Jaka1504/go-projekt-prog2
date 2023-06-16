@@ -14,6 +14,7 @@ import java.awt.event.MouseListener;
 import static java.lang.Math.min;
 
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -37,6 +38,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 	protected Color barvaOzadja;
 	
 	JButton pass;
+	JButton novaIgra;
 	
 	
 	public Platno(int sirina, int visina) {
@@ -51,28 +53,33 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		barvaOzadja = new Color(210, 166, 121);
 		this.addMouseListener(this);
 		
+		setBackground(barvaOzadja);
+		
+		// Gumb pass
 		pass = new JButton("PASS");
 		pass.addActionListener(this);
 		this.add(pass);
 		
-		setBackground(barvaOzadja);
-		
-		/*
+		// 
 		JLabel napisZmage = new JLabel();
 		napisZmage.setBackground(Color.white);
 		napisZmage.setHorizontalAlignment(JLabel.CENTER);
 		
-		switch (igra.stanje()) {
-			case ZMAGA_CRNI:
-				System.out.println("Igra je končana");
-				napisZmage.setText("Zmagal je črni");
-			case ZMAGA_BELI:
-				napisZmage.setText("Zmagal je beli");
-			case V_TEKU:
-				napisZmage.setText("V teku");
+		if (igra == null) {
+			napisZmage.setText("Prični novo igro");
+		}
+		else {
+			switch (igra.stanje()) {
+				case ZMAGA_CRNI:
+					System.out.println("Igra je končana");
+					napisZmage.setText("Zmagal je črni");
+				case ZMAGA_BELI:
+					napisZmage.setText("Zmagal je beli");
+				case V_TEKU:
+					napisZmage.setText("V teku");
+			}
 		}
 		this.add(napisZmage);
-		*/
 
 	}
 

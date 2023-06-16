@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.EnumMap;
@@ -8,31 +9,28 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 
 import logika.Igra;
 import vodja.Vodja;
 import vodja.Vodja.VrstaIgralca;
 
-
 @SuppressWarnings("serial")
-public class Menu extends JMenuBar implements ActionListener{
+public class PlatnoInfo extends JPanel implements ActionListener{
+
+	private JFrame frame;
 	
-	JButton novaIgra;
 	JComboBox<String> igralecB;
 	JComboBox<String> igralecČ;
 	JComboBox<Integer> sirina;
 	JComboBox<Integer> visina;
+	JButton novaIgra;
 	
-	public Menu() {
-		super();
-	    novaIgra = new JButton("Ustvari novo igro");
-	    novaIgra.addActionListener(this);
-	    add(novaIgra);
-	    /*
-	    JLabel beli = new JLabel("Beli igralec:");
+	public PlatnoInfo(JFrame frame) {
+		this.frame = frame;
+		setPreferredSize(new Dimension(100, 100));
+		
+		JLabel beli = new JLabel("Beli igralec:");
 	    add(beli);
 	    String[] igralci = {"Človek","Računalnik"};
 	    igralecB = new JComboBox<String>(igralci);
@@ -56,21 +54,14 @@ public class Menu extends JMenuBar implements ActionListener{
 	    visina.setSelectedItem(9);
 	    visina.addActionListener(this);
 	    add(visina);
-	    */
+	    
+	    novaIgra = new JButton("Prični igro");
+	    novaIgra.addActionListener(this);
+	    this.add(novaIgra);
 	}
 	
 	@Override
     public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == novaIgra) {
-			JFrame infoOkno = new JFrame(); 
-			infoOkno.setSize(250,300);
-			infoOkno.setTitle("Nova igra");
-			infoOkno.setResizable(false);
-			PlatnoInfo infoPlatno = new PlatnoInfo(infoOkno);
-			infoOkno.add(infoPlatno);
-			infoOkno.setVisible(true);	
-		}
-		/*
 		if (e.getSource() == novaIgra) {
 			String igralecBeli = (String) igralecB.getSelectedItem();
 			String igralecČrni = (String) igralecČ.getSelectedItem();
@@ -104,7 +95,8 @@ public class Menu extends JMenuBar implements ActionListener{
 	            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.CRNI, VrstaIgralca.RACUNALNIK);
 	            Vodja.ustvariNovoIgro(s, v);
 			}
+		frame.dispose();
         }
-        */
 	}
+
 }
