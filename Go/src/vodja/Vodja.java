@@ -2,6 +2,7 @@ package vodja;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Stack;
 
 import javax.swing.SwingWorker;
 
@@ -9,6 +10,7 @@ import gui.Okno;
 import inteligenca.Inteligenca;
 import logika.Igra;
 import logika.Igra.BarvaIgralca;
+import logika.KompaktenZapisIgre;
 import splosno.Poteza;
 
 public class Vodja {
@@ -20,20 +22,26 @@ public class Vodja {
 	public static boolean clovekNaVrsti = false;
 	public static Inteligenca crnInteligenca;
 	public static Inteligenca belInteligenca;
+	public static Stack<KompaktenZapisIgre> zgodovina;
 	
-	
-	public static void ustvariNovoIgro(int sirina, int visina) {
-		igra = new Igra(sirina, visina);
+	public static void ustvariNovoIgro(Igra novaIgra, Stack<KompaktenZapisIgre> dosedanjaZgodovina) {
+		igra = novaIgra;
+		zgodovina = dosedanjaZgodovina;
 		crnInteligenca = new Inteligenca();
 		belInteligenca = new Inteligenca();
 		okno.platno().nastaviIgro(igra);
 		igramo();
 	}
 	
+	public static void ustvariNovoIgro(int sirina, int visina) {
+		ustvariNovoIgro(new Igra(sirina, visina), new Stack<KompaktenZapisIgre>());
+	}
+	
 	public static void igramo() {
 		// Ce je igra se v teku, poklice racunalnikovo potezo ali
 		// nastavi clovekNaVrsti na true
 		okno.platno().repaint();
+		zgodovina.add(new KompaktenZapisIgre(igra));
 		if (igra.stanje() == Igra.Stanje.V_TEKU) {
 			Igra.BarvaIgralca naPotezi = igra.naPotezi();
 			VrstaIgralca vrstaNaPotezi = vrstiIgralcev.get(naPotezi);
@@ -79,6 +87,20 @@ public class Vodja {
 			okno.platno().repaint();
 			clovekNaVrsti = false;
 			igramo ();
+		}
+	}
+	
+	public static void undo() {
+		// Vrne igro v prejšnji položaj, pri katerem je bil na vrsti človek
+		if (zgodovina.empty()) return;
+		zgodovina.pop(); // odstani trenutno igro z vrha kupa
+		while (!zgodovina.empty()) {
+			KompaktenZapisIgre zeljenaIgra = zgodovina.pop();
+			if (vrstiIgralcev.get(zeljenaIgra.naPotezi()) == VrstaIgralca.CLOVEK) {
+				System.out.println("Našel sem pravo igro");
+				ustvariNovoIgro(new Igra(zeljenaIgra), zgodovina);
+				break;
+			}
 		}
 	}
 }

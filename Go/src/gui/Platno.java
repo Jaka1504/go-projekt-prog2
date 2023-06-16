@@ -103,7 +103,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		 * mrežo, da paše noter, plus dodamo dva stolpca na vsaki strani za lepši izgled
 		 */
 		int razmikNaMrezi = min(
-				sirinaPlatna / (sirina + 4),
+				sirinaPlatna / (sirina + 10),
 				visinaPlatna / (visina + 4)
 			);
 		

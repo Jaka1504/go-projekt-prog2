@@ -1,5 +1,8 @@
 package logika;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -135,6 +138,37 @@ public class Igra {
 		this.steviloBelihUjetnikov = igra.steviloBelihUjetnikov;
 	}
 	
+	public Igra(KompaktenZapisIgre igra) {
+		this.naPotezi = igra.naPotezi;
+		this.sirina = igra.sirina;
+		this.visina = igra.visina;
+		this.stanje = igra.stanje;
+		this.tabela = new Polje[visina][sirina];
+		for (int i = 0; i < visina; i++) {
+			for (int j = 0 ; j < sirina; j++) {
+				this.tabela[i][j] = igra.tabela[i][j];
+			}
+		}
+		
+		this.moznePoteze = new LinkedList<Koordinate>();
+		
+		this.crneSkupine = new ListSets<Koordinate>();
+		this.beleSkupine = new ListSets<Koordinate>();
+		this.teritoriji = new ListSets<Koordinate>();
+		
+		this.crneSvobode = new HashMap<Koordinate, Set<Koordinate>>();
+		this.beleSvobode = new HashMap<Koordinate, Set<Koordinate>>();
+		this.mejeTeritorijev = new HashMap<Koordinate, Set<Koordinate>>();
+		
+		this.globalnoPosodobiVseGrupe();
+		
+		this.zadnjaPoteza = igra.zadnjaPoteza;
+		this.zadnjiUjetnik = igra.zadnjiUjetnik;
+		
+		this.steviloCrnihUjetnikov = igra.steviloCrnihUjetnikov;
+		this.steviloBelihUjetnikov = igra.steviloBelihUjetnikov;
+	}
+	
 	// =================== Metode za dostop do atributov in njihovo urejanje =================== 
 	
 	public int sirina() {
@@ -257,13 +291,11 @@ public class Igra {
 				else if (rezultat.x() < rezultat.y()) stanje = Stanje.ZMAGA_BELI;
 				else stanje = Stanje.ZMAGA_BELI; // TODO neodloceno dodaj
 				
-				naPotezi = BarvaIgralca.obrni(naPotezi);
+				predajPotezo(koordinate);
 				return true;
 			}
 			else {
-				naPotezi = BarvaIgralca.obrni(naPotezi);
-				zadnjaPoteza = Koordinate.PASS;
-
+				predajPotezo(koordinate);
 				return true;
 			}
 		}
@@ -295,8 +327,7 @@ public class Igra {
 			}
 								
 			// Preda potezo
-			naPotezi = BarvaIgralca.obrni(naPotezi);
-			zadnjaPoteza = koordinate;
+			predajPotezo(koordinate);
 			return true;
 		}
 		else return false;
@@ -510,6 +541,11 @@ public class Igra {
 				}
 			}
 		}		
+	}
+	
+	private void predajPotezo(Koordinate koordinate) {
+		naPotezi = BarvaIgralca.obrni(naPotezi);
+		zadnjaPoteza = koordinate;
 	}
 	
 	// =================== Pomožne metode ===================
