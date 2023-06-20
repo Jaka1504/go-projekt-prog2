@@ -29,7 +29,7 @@ public class Inteligenca extends KdoIgra{
 	public Poteza izberiPotezo(Igra igra) {
 		// Poišče najustreznejšo potezo za dano igro
 		
-		return MCTSAlgoritem(igra, 5000);
+		return MCTSAlgoritem(igra, 500);
 	}
 
 	public static Poteza nakljucnaPoteza(Igra igra) {
@@ -73,9 +73,21 @@ public class Inteligenca extends KdoIgra{
 		for (MCTSVozlisce otrok : korenDrevesa.otroci.values()) {
 			if (otrok != null) {
 				if (otrok.igra.zadnjaPoteza().equals(Koordinate.PASS)) passOtrok = otrok;
-				else if (otrok.steviloObiskov > max) {
-					max = otrok.steviloObiskov;
-					najboljsiOtrok = otrok;
+				else {
+					// Če še nismo raziskali dovolj, nam število obiskov nič ne pove
+					if (korenDrevesa.steviloObiskov < 3 * korenDrevesa.igra.moznePoteze().size()) {
+						if (1 - otrok.steviloPricakovanihZmag / otrok.steviloObiskov > max) {
+							max = 1 - otrok.steviloPricakovanihZmag / otrok.steviloObiskov;
+							najboljsiOtrok = otrok;
+						}
+					}
+					// Če smo vsakega raziskali vsaj enkrat, je število obiskov dobro merilo
+					else {
+						if (otrok.steviloObiskov > max) {
+							max = otrok.steviloObiskov;
+							najboljsiOtrok = otrok;
+						}
+					}
 				}
 			}
 		}
