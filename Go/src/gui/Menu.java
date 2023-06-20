@@ -1,10 +1,12 @@
 package gui;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.EnumMap;
 
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -21,42 +23,33 @@ import vodja.Vodja.VrstaIgralca;
 public class Menu extends JMenuBar implements ActionListener{
 	
 	JButton novaIgra;
-	JComboBox<String> igralecB;
-	JComboBox<String> igralecČ;
-	JComboBox<Integer> sirina;
-	JComboBox<Integer> visina;
+	JMenu barveIgralcev;
+	JMenuItem crniZetoni;
+	JMenuItem beliZetoni;
+	protected Igra igra;
+	
 	
 	public Menu() {
 		super();
 	    novaIgra = new JButton("Ustvari novo igro");
 	    novaIgra.addActionListener(this);
 	    add(novaIgra);
-	    /*
-	    JLabel beli = new JLabel("Beli igralec:");
-	    add(beli);
-	    String[] igralci = {"Človek","Računalnik"};
-	    igralecB = new JComboBox<String>(igralci);
-	    igralecB.addActionListener(this);
-	    add(igralecB);
-	    JLabel črni = new JLabel("Črni igralec:");
-	    add(črni);
-	    igralecČ = new JComboBox<String>(igralci);
-	    igralecČ.addActionListener(this);
-	    add(igralecČ);
-	    Integer[] stevilke = {5,6,7,8,9,10,11,12,13,14,15,16};
-	    JLabel napisSirina = new JLabel("Širina:");
-	    add(napisSirina);
-	    sirina = new JComboBox<Integer>(stevilke);
-	    sirina.setSelectedItem(9);
-	    sirina.addActionListener(this);
-	    add(sirina);
-	    JLabel napisVisina = new JLabel("Višina:");
-	    add(napisVisina);
-	    visina = new JComboBox<Integer>(stevilke);
-	    visina.setSelectedItem(9);
-	    visina.addActionListener(this);
-	    add(visina);
-	    */
+	    
+	    barveIgralcev = new JMenu("Spremeni barve žetonov");
+	    crniZetoni = new JMenuItem("Spremeni barvo črnih žetonov");
+	    crniZetoni.addActionListener(this);
+	    beliZetoni = new JMenuItem("Spremeni barvo belih žetonov");
+	    beliZetoni.addActionListener(this);
+	    barveIgralcev.add(crniZetoni);
+	    barveIgralcev.add(beliZetoni);
+	    
+	    add(barveIgralcev);
+	}
+	
+	
+	public void nastaviIgro(Igra igra) {
+		this.igra = igra;
+		
 	}
 	
 	@Override
@@ -70,41 +63,16 @@ public class Menu extends JMenuBar implements ActionListener{
 			infoOkno.add(infoPlatno);
 			infoOkno.setVisible(true);	
 		}
-		/*
-		if (e.getSource() == novaIgra) {
-			String igralecBeli = (String) igralecB.getSelectedItem();
-			String igralecČrni = (String) igralecČ.getSelectedItem();
-			int s = (int) sirina.getSelectedItem();
-			int v = (int) visina.getSelectedItem();
-			if (igralecBeli == "Človek" && igralecČrni == "Človek") {
-				Vodja.vrstiIgralcev =
-        		new EnumMap<Igra.BarvaIgralca, VrstaIgralca>(Igra.BarvaIgralca.class);
-				Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.BELI, VrstaIgralca.CLOVEK);
-				Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.CRNI, VrstaIgralca.CLOVEK);
-				Vodja.ustvariNovoIgro(s, v);
-			}
-			else if (igralecBeli == "Računalnik" && igralecČrni == "Človek") {
-	            Vodja.vrstiIgralcev =
-	            		new EnumMap<Igra.BarvaIgralca, VrstaIgralca>(Igra.BarvaIgralca.class);
-	            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.CRNI, VrstaIgralca.CLOVEK);
-	            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.BELI, VrstaIgralca.RACUNALNIK);
-	            Vodja.ustvariNovoIgro(s, v);
-			}
-			else if (igralecBeli == "Človek" && igralecČrni == "Računalnik") { 
-	            Vodja.vrstiIgralcev =
-	            		new EnumMap<Igra.BarvaIgralca, VrstaIgralca>(Igra.BarvaIgralca.class);
-	            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.CRNI, VrstaIgralca.RACUNALNIK);
-	            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.BELI, VrstaIgralca.CLOVEK);
-	            Vodja.ustvariNovoIgro(s, v);
-			}
-			else if (igralecBeli == "Računalnik" && igralecČrni == "Računalnik") { 
-	            Vodja.vrstiIgralcev =
-	            		new EnumMap<Igra.BarvaIgralca, VrstaIgralca>(Igra.BarvaIgralca.class);
-	            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.BELI, VrstaIgralca.RACUNALNIK);
-	            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.CRNI, VrstaIgralca.RACUNALNIK);
-	            Vodja.ustvariNovoIgro(s, v);
-			}
-        }
-        */
-	}
+		if (e.getSource() == crniZetoni) {
+			JColorChooser izbiraBarveCrni = new JColorChooser();
+			Color barva = JColorChooser.showDialog(null, "Spremeni barvo črnih žetonov", Color.BLACK);
+			this.igra.nastaviBarvoCrnih(barva);
+		}
+		if (e.getSource() == beliZetoni) {
+			JColorChooser izbiraBarveBeli = new JColorChooser();
+			Color barva = JColorChooser.showDialog(null, "Spremeni barvo belih žetonov", Color.WHITE);
+			this.igra.nastaviBarvoBelih(barva);
+		}
+	} 
+
 }

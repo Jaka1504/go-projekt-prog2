@@ -49,9 +49,9 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		setPreferredSize(new Dimension(sirina, visina));
 		debelinaMreznihCrt = new BasicStroke(2);
 		debelinaRobaZetonov = new BasicStroke(3);
-		barvaCrnih = Color.BLACK;
+		//barvaCrnih = Color.BLACK;
 		barvaRobaCrnih = Color.DARK_GRAY;
-		barvaBelih = Color.WHITE;
+		//barvaBelih = Color.WHITE;
 		barvaRobaBelih = Color.LIGHT_GRAY;
 		barvaOzadja = new Color(210, 166, 121);
 		this.addMouseListener(this);
@@ -101,6 +101,9 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		super.paintComponent(g);
 		if (igra == null) return;
 		Graphics2D g2 = (Graphics2D) g;
+		
+		barvaCrnih = igra.barvaCrnih();
+		barvaBelih = igra.barvaBelih();
 		
 		int sirinaPlatna = this.getSize().width;
 		int visinaPlatna = this.getSize().height;
@@ -229,6 +232,11 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		return (int)(x + 0.5);
 	}
 
+	public String napis(Igra igra) {
+		return null;
+	}
+	
+	
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (Vodja.clovekNaVrsti) {

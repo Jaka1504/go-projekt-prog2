@@ -1,5 +1,7 @@
 package logika;
 
+import java.awt.Color;
+
 import logika.Igra.BarvaIgralca;
 import logika.Igra.Stanje;
 
@@ -14,6 +16,8 @@ public class KompaktenZapisIgre {
 	protected int steviloCrnihUjetnikov;
 	protected int steviloBelihUjetnikov;
 	protected Polje[][] tabela;
+	protected Color barvaCrnih;
+	protected Color barvaBelih;
 	
 	public KompaktenZapisIgre(Igra igra) {
 		this.sirina = igra.sirina;
@@ -30,6 +34,8 @@ public class KompaktenZapisIgre {
 		this.zadnjiUjetnik = igra.zadnjiUjetnik;
 		this.steviloCrnihUjetnikov = igra.steviloCrnihUjetnikov;
 		this.steviloBelihUjetnikov = igra.steviloBelihUjetnikov;
+		this.barvaBelih = igra.barvaBelih;
+		this.barvaCrnih = igra.barvaCrnih;
 	}
 
 	public BarvaIgralca naPotezi() {

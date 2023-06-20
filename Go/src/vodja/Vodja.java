@@ -30,6 +30,7 @@ public class Vodja {
 		crnInteligenca = new Inteligenca();
 		belInteligenca = new Inteligenca();
 		okno.platno().nastaviIgro(igra);
+		okno.menu().nastaviIgro(igra);
 		igramo();
 	}
 	

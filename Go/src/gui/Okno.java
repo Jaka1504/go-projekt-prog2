@@ -6,6 +6,7 @@ import javax.swing.JFrame;
 public class Okno extends JFrame {
 	
 	protected Platno platno;
+	protected Menu menu;
 	
 	public Okno() {
 		super();
@@ -14,7 +15,7 @@ public class Okno extends JFrame {
 		add(platno);				// doda platno na okno
 		
 		//menu
-		Menu menu= new Menu();
+		menu= new Menu();
 		
 	    this.setJMenuBar(menu);  //doda meni na okno
 	    
@@ -25,6 +26,10 @@ public class Okno extends JFrame {
 	
 	public Platno platno() {
 		return platno;
+	}
+	
+	public Menu menu() {
+		return menu;
 	}
 	
 	

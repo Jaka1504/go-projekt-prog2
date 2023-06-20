@@ -1,5 +1,6 @@
 package logika;
 
+import java.awt.Color;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -50,6 +51,8 @@ public class Igra {
 	protected Koordinate zadnjiUjetnik;
 	protected int steviloCrnihUjetnikov;
 	protected int steviloBelihUjetnikov;
+	protected Color barvaCrnih;
+	protected Color barvaBelih;
 
 	// =================== Konstruktorji =================== 
 	
@@ -92,6 +95,9 @@ public class Igra {
 		
 		steviloCrnihUjetnikov = 0;
 		steviloBelihUjetnikov = 0;
+		
+		barvaCrnih = Color.BLACK;
+		barvaBelih = Color.WHITE;
 
 	}
 	
@@ -136,6 +142,9 @@ public class Igra {
 		
 		this.steviloCrnihUjetnikov = igra.steviloCrnihUjetnikov;
 		this.steviloBelihUjetnikov = igra.steviloBelihUjetnikov;
+		
+		this.barvaBelih = igra.barvaBelih;
+		this.barvaCrnih = igra.barvaCrnih;
 	}
 	
 	public Igra(KompaktenZapisIgre igra) {
@@ -167,6 +176,9 @@ public class Igra {
 		
 		this.steviloCrnihUjetnikov = igra.steviloCrnihUjetnikov;
 		this.steviloBelihUjetnikov = igra.steviloBelihUjetnikov;
+		
+		this.barvaBelih = igra.barvaBelih;
+		this.barvaCrnih = igra.barvaCrnih;
 	}
 	
 	// =================== Metode za dostop do atributov in njihovo urejanje =================== 
@@ -231,6 +243,22 @@ public class Igra {
 	
 	public Koordinate zadnjaPoteza() {
 		return zadnjaPoteza;
+	}
+	
+	public Color barvaCrnih() {
+		return barvaCrnih;
+	}
+	
+	public Color barvaBelih() {
+		return barvaBelih;
+	}
+	
+	public void nastaviBarvoCrnih(Color barva) {
+		this.barvaCrnih = barva;
+	}
+	
+	public void nastaviBarvoBelih(Color barva) {
+		this.barvaBelih = barva;
 	}
 	
 	/*

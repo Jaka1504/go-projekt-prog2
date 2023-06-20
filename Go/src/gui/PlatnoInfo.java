@@ -1,10 +1,12 @@
 package gui;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.EnumMap;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -28,7 +30,13 @@ public class PlatnoInfo extends JPanel implements ActionListener{
 	
 	public PlatnoInfo(JFrame frame) {
 		this.frame = frame;
+		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		
 		setPreferredSize(new Dimension(100, 100));
+		
+		JLabel spacingLabel = new JLabel();
+        spacingLabel.setPreferredSize(new Dimension(0, 20));
+        add(spacingLabel);
 		
 		JLabel beli = new JLabel("Beli igralec:");
 	    add(beli);
@@ -41,7 +49,7 @@ public class PlatnoInfo extends JPanel implements ActionListener{
 	    igralecČ = new JComboBox<String>(igralci);
 	    igralecČ.addActionListener(this);
 	    add(igralecČ);
-	    Integer[] stevilke = {5,6,7,8,9,10,11,12,13,14,15,16};
+	    Integer[] stevilke = {5,6,7,8,9,10,11,12,13,14,15,16,17,18,19};
 	    JLabel napisSirina = new JLabel("Širina:");
 	    add(napisSirina);
 	    sirina = new JComboBox<Integer>(stevilke);
@@ -57,7 +65,12 @@ public class PlatnoInfo extends JPanel implements ActionListener{
 	    
 	    novaIgra = new JButton("Prični igro");
 	    novaIgra.addActionListener(this);
+	    //novaIgra.setAlignmentX(Component.LEFT_ALIGNMENT);
 	    this.add(novaIgra);
+	    
+	    JLabel spacingLabel2 = new JLabel();
+        spacingLabel2.setPreferredSize(new Dimension(0, 20));
+        add(spacingLabel2);
 	}
 	
 	@Override
