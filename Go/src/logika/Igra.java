@@ -680,7 +680,7 @@ public class Igra {
 				grupa.add(osrednjePolje);
 				for (Koordinate koordinateSosednjegaPolja : sosedi(osrednjePolje)) { 
 					Polje sosednjePolje = vrednost(koordinateSosednjegaPolja);
-					if (!grupa.contains(koordinateSosednjegaPolja)) {
+					if (!grupa.contains(koordinateSosednjegaPolja) && !zaObdelavo.contains(koordinateSosednjegaPolja)) {
 						if (sosednjePolje == tip) zaObdelavo.add(koordinateSosednjegaPolja);
 						else meja.add(koordinateSosednjegaPolja);
 					}
