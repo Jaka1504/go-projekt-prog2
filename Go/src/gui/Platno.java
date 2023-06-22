@@ -43,12 +43,12 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 	protected Color barvaOzadja;
 	protected Color barvaObmocjaZaUjete;
 	
-	JButton pass;
-	JButton razveljavi;
+	protected JButton pass;
+	protected JButton razveljavi;
 	
-	JLabel napis;
-	JLabel razlikaCrni;
-	JLabel razlikaBeli;
+	protected JLabel napis;
+	protected JLabel razlikaCrni;
+	protected JLabel razlikaBeli;
 
 	
 	public Platno(int sirina, int visina) {
@@ -57,9 +57,9 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		debelinaMreznihCrt = new BasicStroke(2);
 		debelinaRobaZetonov = new BasicStroke(3);
 		barvaCrnih = Color.BLACK;
-		barvaRobaCrnih = Color.DARK_GRAY;
+		barvaRobaCrnih = barvaCrnih.darker();
 		barvaBelih = Color.WHITE;
-		barvaRobaBelih = Color.LIGHT_GRAY;
+		barvaRobaBelih = barvaBelih.darker();
 		barvaZadnjePoteze = new Color(255, 255, 255, 100);
 		barvaOzadja = new Color(210, 166, 121);
 		barvaObmocjaZaUjete = barvaOzadja.darker();
@@ -81,7 +81,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		napis.setBackground(new Color(255,255,255,127));
 		napis.setOpaque(true);
 		napis.setHorizontalAlignment(JLabel.CENTER);
-		napis.setFont(new Font("Serif", Font.PLAIN, 20));
+//		napis.setFont(new Font("Serif", Font.PLAIN, 20));
 		posodobiNapis("Prični novo igro");
 		
 		razlikaCrni = new JLabel();
@@ -93,41 +93,49 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		this.igra = igra;	
 	}
 	
-	public void nastaviBarvoBel(Color barvaB) {
-		this.barvaBelih = barvaB;
+	public void nastaviBarvoBel(Color barva) {
+		barvaBelih = barva;
+		barvaRobaBelih = (svetlost(barva) > 100.0) ? barva.darker() : barva.brighter().brighter();
+		repaint();
 	}
 	
-	public void nastaviBarvoCrn(Color barvaC) {
-		this.barvaCrnih = barvaC;
+	public void nastaviBarvoCrn(Color barva) {
+		barvaCrnih = barva;
+		barvaRobaCrnih = (svetlost(barva) > 100.0) ? barva.darker() : barva.brighter().brighter();
+		System.out.println(svetlost(barva));
+		repaint();
+	}
+	
+	private double svetlost(Color barva) {
+		int r = barva.getRed();
+		int g = barva.getGreen();
+		int b = barva.getBlue();
+		return Math.sqrt(
+				.241 * r * r +
+				.691 * g * g +
+				.068 * b * b);
 	}
 	
 	@Override
 	protected void paintComponent(Graphics g) {
+		System.out.println("Repaint");
 		super.paintComponent(g);
 		if (igra == null) return;
 		Graphics2D g2 = (Graphics2D) g;
-		
-		//barvaCrnih = igra.barvaCrnih();
-		//barvaBelih = igra.barvaBelih();
-		
-		int sirinaPlatna = this.getSize().width;
-		int visinaPlatna = this.getSize().height;
+
 		int sirina = igra.sirina();
 		int visina = igra.visina();
 
 		/* Ideja je, da poračunamo širino in višino platna ter prilagodimo našo
-		 * mrežo, da paše noter, plus dodamo dva stolpca na vsaki strani za lepši izgled
+		 * mrežo, da paše noter, plus dodamo nekaj stolpcev na vsaki strani za lepši izgled
 		 */
-		int razmikNaMrezi = min(
-				sirinaPlatna / (sirina + 10),
-				visinaPlatna / (visina + 4)
-			);
-		
+		int razmikNaMrezi = getRazmikNaMrezi(); 
+				
 		// top-left x
-		int tlx = (int) (sirinaPlatna / 2.0 - (sirina - 1) / 2.0 * razmikNaMrezi);
+		int tlx = getTlx();
 		
 		// top-left y
-		int tly = (int) (visinaPlatna / 2.0 - (visina - 1) / 2.0 * razmikNaMrezi);
+		int tly = getTly();
 		
 		
 		// MREŽNE ČRTE
@@ -272,7 +280,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
                 (int) razveljavi.getPreferredSize().getWidth(),
                 (int) pass.getPreferredSize().getHeight());
 		pass.setEnabled(Vodja.clovekNaVrsti); 							// Lahko pritisnes ce je clovek na vrsti, sicer ne
-		this.add(pass);
+		// this.add(pass);
 		
 		// Gumb RAZVELJAVI
 		razveljavi.setBounds(
@@ -286,7 +294,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		// Lahko pa na koncu, tudi če je končal računalnik, če je bil v igri kak človek
 		boolean pogojZaRazveljavitev = (Vodja.clovekNaVrsti || (igra.stanje() != Stanje.V_TEKU && Vodja.vrstiIgralcev.containsValue(Vodja.VrstaIgralca.CLOVEK)));
 		razveljavi.setEnabled(pogojZaRazveljavitev);
-		this.add(razveljavi);
+		// this.add(razveljavi);
 		
 		// Napis
 		napis.setBounds(
@@ -316,6 +324,8 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 			}
 		}
 		*/
+		
+		napis.setFont(new Font("Serif", Font.PLAIN, (int)(0.7 * razmikNaMrezi)));
 		this.add(napis);
 		
 		// DEBUG:
@@ -388,24 +398,38 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		this.repaint();
 	}
 	
+	private int getRazmikNaMrezi() {
+		return min(
+				getWidth() / (igra.sirina() + 10),
+				getHeight() / (igra.visina() + 4)
+			);
+	}
+	
+	private int getTlx() {
+		int sirina = igra.sirina();
+		int sirinaPlatna = getWidth();
+		return (int) (sirinaPlatna / 2.0 - (sirina - 1) / 2.0 * getRazmikNaMrezi()); 
+	}
+	
+	private int getTly() {
+		int visina = igra.visina();
+		int visinaPlatna = getHeight();
+		return (int) (visinaPlatna / 2.0 - (visina- 1) / 2.0 * getRazmikNaMrezi()); 
+	}
+	
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		if (Vodja.clovekNaVrsti) {
 			int x_ = e.getX();
 			int y_ = e.getY();
 			
-			int sirinaPlatna = this.getSize().width;
-			int visinaPlatna = this.getSize().height;
 			int sirina = igra.sirina();
 			int visina = igra.visina();
-			int razmikNaMrezi = min(
-					sirinaPlatna / (sirina + 10),
-					visinaPlatna / (visina + 4)
-				);
-			
-			int tlx = (int) (sirinaPlatna / 2.0 - (sirina - 1) / 2.0 * razmikNaMrezi);
-			int tly = (int) (visinaPlatna / 2.0 - (visina - 1) / 2.0 * razmikNaMrezi);
 
+			int razmikNaMrezi = getRazmikNaMrezi(); 
+			int tlx = getTlx();
+			int tly = getTly();
+			
 			double x = x_ - tlx + 0.5 * razmikNaMrezi; 			//To bo od 0 do (sirina - 1) * razmikNaMreži
 			double y = y_ - tly + 0.5 * razmikNaMrezi;			//To bo od 0 do (visina -1) * razmikNaMreži
 			if (x >= 0 && x < sirina * razmikNaMrezi && y >= 0 && y < visina * razmikNaMrezi) {

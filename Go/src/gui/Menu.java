@@ -81,13 +81,13 @@ public class Menu extends JMenuBar implements ActionListener{
 			// JColorChooser izbiraBarveCrni = new JColorChooser();
 			Color barva = JColorChooser.showDialog(this.getParent(), "Spremeni barvo črnih žetonov", Color.BLACK);
 			//this.igra.nastaviBarvoCrnih(barva);
-			this.platno.nastaviBarvoCrn(barva);
+			if (barva != null) this.platno.nastaviBarvoCrn(barva);
 		}
 		else if (e.getSource() == beliZetoni) {
 			// JColorChooser izbiraBarveBeli = new JColorChooser();
 			Color barva = JColorChooser.showDialog(this.getParent(), "Spremeni barvo belih žetonov", Color.WHITE);
 			//this.igra.nastaviBarvoBelih(barva);
-			this.platno.nastaviBarvoBel(barva);
+			if (barva != null) this.platno.nastaviBarvoBel(barva);
 		}
 
 		else if (e.getSource() == pravilaIgre) {

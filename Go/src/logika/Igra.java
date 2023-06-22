@@ -566,11 +566,6 @@ public class Igra {
 	// =================== Pomožne metode ===================
 	
 	public Koordinate tocke() {
-		/*
-		System.out.println(this);
-		System.out.println(teritoriji);
-		System.out.println(mejeTeritorijev);
-		*/
 		int crni = 0;
 		int beli = 0;
 		
@@ -600,6 +595,31 @@ public class Igra {
 		}
 		
 		return new Koordinate(crni, beli);
+	}
+	
+	public Rezultat rezultat(BarvaIgralca barva) {
+		// Preštejemo število žetonov (kitajska pravila)
+		int postavljeniZetoni = 0;
+		for (int x = 0 ; x < sirina; x++) {
+			for (int y = 0; y < visina; y++) {
+				if (vrednost(x, y) == Polje.barvaZaZeton(barva)) postavljeniZetoni++;
+			}
+		}
+		
+		// Prištejemo velikost osvojenega ozemlja
+		int osvojenoOzemlje = 0;
+		for (List<Koordinate> teritorij : teritoriji) {
+			boolean odIgralca = true;
+			for (Koordinate mejnoPolje : mejeTeritorijev.get(teritoriji.find(teritorij.get(0)))) {
+				if (vrednost(mejnoPolje) != Polje.barvaZaZeton(barva)) odIgralca = false;
+			}
+			if (odIgralca) osvojenoOzemlje += teritorij.size();
+		}
+		
+		// Prištejemo število ujetnikov
+		int ujetiZetoni = (barva == BarvaIgralca.CRNI) ? steviloCrnihUjetnikov : steviloBelihUjetnikov;
+		
+		return new Rezultat(postavljeniZetoni, osvojenoOzemlje, ujetiZetoni);
 	}
 	
 	public Koordinate predstavnikSkupine(Koordinate koordinate) {
