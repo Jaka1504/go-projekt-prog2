@@ -48,15 +48,16 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 	JLabel napis;
 	JLabel razlikaCrni;
 	JLabel razlikaBeli;
+
 	
 	public Platno(int sirina, int visina) {
 		super();		// pokliče konstruktor od JPanel
 		setPreferredSize(new Dimension(sirina, visina));
 		debelinaMreznihCrt = new BasicStroke(2);
 		debelinaRobaZetonov = new BasicStroke(3);
-		//barvaCrnih = Color.BLACK;
+		barvaCrnih = Color.BLACK;
 		barvaRobaCrnih = Color.DARK_GRAY;
-		//barvaBelih = Color.WHITE;
+		barvaBelih = Color.WHITE;
 		barvaRobaBelih = Color.LIGHT_GRAY;
 		barvaZadnjePoteze = new Color(255, 255, 255, 100);
 		barvaOzadja = new Color(210, 166, 121);
@@ -81,29 +82,21 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		napis.setHorizontalAlignment(JLabel.CENTER);
 		napis.setFont(new Font("Serif", Font.PLAIN, 20));
 		
-		if (igra == null) {
-			napis.setText("Prični novo igro");
-		}
-		else {
-			switch (igra.stanje()) {
-				case ZMAGA_CRNI:
-					System.out.println("Igra je končana");
-					napis.setText("Zmagal je črni");
-				case ZMAGA_BELI:
-					napis.setText("Zmagal je beli");
-				case V_TEKU:
-					napis.setText("V teku");
-			}
-		}
-		
 		razlikaCrni = new JLabel();
 		razlikaBeli = new JLabel();
 
 	}
 
 	public void nastaviIgro(Igra igra) {
-		this.igra = igra;
-		
+		this.igra = igra;	
+	}
+	
+	public void nastaviBarvoBel(Color barvaB) {
+		this.barvaBelih = barvaB;
+	}
+	
+	public void nastaviBarvoCrn(Color barvaC) {
+		this.barvaCrnih = barvaC;
 	}
 	
 	@Override
@@ -112,8 +105,8 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		if (igra == null) return;
 		Graphics2D g2 = (Graphics2D) g;
 		
-		barvaCrnih = igra.barvaCrnih();
-		barvaBelih = igra.barvaBelih();
+		//barvaCrnih = igra.barvaCrnih();
+		//barvaBelih = igra.barvaBelih();
 		
 		int sirinaPlatna = this.getSize().width;
 		int visinaPlatna = this.getSize().height;
@@ -301,6 +294,20 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 				5,
 				(int) ((sirina * razmikNaMrezi - napis.getPreferredSize().getWidth()) / 2.0)));//top,left,bottom,right
 		*/
+		if (this.igra == null) {
+			napis.setText("Prični novo igro");
+		}
+		else {
+			switch (igra.stanje()) {
+				case ZMAGA_CRNI:
+					System.out.println("Igra je končana");
+					napis.setText("Zmagal je črni");
+				case ZMAGA_BELI:
+					napis.setText("Zmagal je beli");
+				case V_TEKU:
+					napis.setText("V teku");
+			}
+		}
 		this.add(napis);
 		
 		// DEBUG:
@@ -339,11 +346,6 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		g.drawLine(tlx + polmerUkrivljanja, tly, tlx + sirina - polmerUkrivljanja, tly);
 		g.drawLine(tlx + polmerUkrivljanja, tly + visina, tlx + sirina - polmerUkrivljanja, tly + visina);
 	}
-
-	public String napis(Igra igra) {
-		return null;
-	}
-	
 	
 	@Override
 	public void mouseClicked(MouseEvent e) {
@@ -360,8 +362,8 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 					visinaPlatna / (visina + 4)
 				);
 			
-			int tlx = (int) (sirinaPlatna / 2.0 - sirina / 2.0 * razmikNaMrezi);
-			int tly = (int) (visinaPlatna / 2.0 - visina / 2.0 * razmikNaMrezi);
+			int tlx = (int) (sirinaPlatna / 2.0 - (sirina - 1) / 2.0 * razmikNaMrezi);
+			int tly = (int) (visinaPlatna / 2.0 - (visina - 1) / 2.0 * razmikNaMrezi);
 
 			double x = x_ - tlx + 0.5 * razmikNaMrezi; 			//To bo od 0 do (sirina - 1) * razmikNaMreži
 			double y = y_ - tly + 0.5 * razmikNaMrezi;			//To bo od 0 do (visina -1) * razmikNaMreži

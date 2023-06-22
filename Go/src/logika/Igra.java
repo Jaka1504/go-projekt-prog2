@@ -51,8 +51,6 @@ public class Igra {
 	protected Koordinate zadnjiUjetnik;
 	protected int steviloCrnihUjetnikov;
 	protected int steviloBelihUjetnikov;
-	protected Color barvaCrnih;
-	protected Color barvaBelih;
 
 	// =================== Konstruktorji =================== 
 	
@@ -95,9 +93,6 @@ public class Igra {
 		
 		steviloCrnihUjetnikov = 0;
 		steviloBelihUjetnikov = 0;
-		
-		barvaCrnih = Color.BLACK;
-		barvaBelih = Color.WHITE;
 
 	}
 	
@@ -143,8 +138,6 @@ public class Igra {
 		this.steviloCrnihUjetnikov = igra.steviloCrnihUjetnikov;
 		this.steviloBelihUjetnikov = igra.steviloBelihUjetnikov;
 		
-		this.barvaBelih = igra.barvaBelih;
-		this.barvaCrnih = igra.barvaCrnih;
 	}
 	
 	public Igra(KompaktenZapisIgre igra) {
@@ -177,8 +170,6 @@ public class Igra {
 		this.steviloCrnihUjetnikov = igra.steviloCrnihUjetnikov;
 		this.steviloBelihUjetnikov = igra.steviloBelihUjetnikov;
 		
-		this.barvaBelih = igra.barvaBelih;
-		this.barvaCrnih = igra.barvaCrnih;
 	}
 	
 	// =================== Metode za dostop do atributov in njihovo urejanje =================== 
@@ -243,22 +234,6 @@ public class Igra {
 	
 	public Koordinate zadnjaPoteza() {
 		return zadnjaPoteza;
-	}
-	
-	public Color barvaCrnih() {
-		return barvaCrnih;
-	}
-	
-	public Color barvaBelih() {
-		return barvaBelih;
-	}
-	
-	public void nastaviBarvoCrnih(Color barva) {
-		this.barvaCrnih = barva;
-	}
-	
-	public void nastaviBarvoBelih(Color barva) {
-		this.barvaBelih = barva;
 	}
 	
 	/*
@@ -703,6 +678,31 @@ public class Igra {
 
 		return moznosti;		
 	}
+	
+	// =================== Prilagojen napis =================== 
+	
+	/*
+	public String napis(Koordinate koordinate) {
+		if (!legalnostKo(koordinate)) return "Ta poteza ni dovoljena";
+		if (!legalnostSamomor(koordinate)) return "Ta poteza ni dovoljena";
+		switch (this.stanje) {
+			case ZMAGA_CRNI: 
+				return "Zmagal je črni igralec";
+			case ZMAGA_BELI:
+				return "Zmagal je beli igralev";
+			case V_TEKU:
+				switch (this.naPotezi) {
+				case BELI:
+					return "Na potezi je beli igralec";
+				case CRNI:
+					return "Na potezi je črni igralec";
+				default:
+					break;
+				}
+		}
+		return null;
+	}
+	*/
 
 	// =================== Za v pomoč pri debugganju =================== 
 	

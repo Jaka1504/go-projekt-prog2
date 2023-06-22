@@ -15,7 +15,8 @@ public class Okno extends JFrame {
 		add(platno);				// doda platno na okno
 		
 		//menu
-		menu= new Menu();
+		//menu= new Menu();
+		menu= new Menu(platno);
 		
 	    this.setJMenuBar(menu);  //doda meni na okno
 	    

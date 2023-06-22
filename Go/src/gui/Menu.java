@@ -29,9 +29,11 @@ public class Menu extends JMenuBar implements ActionListener{
 	JMenuItem beliZetoni;
 	protected Igra igra;
 	JButton pravilaIgre;
+	Platno platno;
 	
-	public Menu() {
+	public Menu(Platno platno) {
 		super();
+		this.platno = platno;
 	    novaIgra = new JButton("Ustvari novo igro");
 	    novaIgra.addActionListener(this);
 	    add(novaIgra);	    
@@ -67,12 +69,14 @@ public class Menu extends JMenuBar implements ActionListener{
 		else if (e.getSource() == crniZetoni) {
 			JColorChooser izbiraBarveCrni = new JColorChooser();
 			Color barva = JColorChooser.showDialog(null, "Spremeni barvo črnih žetonov", Color.BLACK);
-			this.igra.nastaviBarvoCrnih(barva);
+			//this.igra.nastaviBarvoCrnih(barva);
+			this.platno.nastaviBarvoCrn(barva);
 		}
 		else if (e.getSource() == beliZetoni) {
 			JColorChooser izbiraBarveBeli = new JColorChooser();
 			Color barva = JColorChooser.showDialog(null, "Spremeni barvo belih žetonov", Color.WHITE);
-			this.igra.nastaviBarvoBelih(barva);
+			//this.igra.nastaviBarvoBelih(barva);
+			this.platno.nastaviBarvoBel(barva);
 		}
 		else if (e.getSource() == pravilaIgre) {
 			String pravila = "<html><body width='%1s'>"
