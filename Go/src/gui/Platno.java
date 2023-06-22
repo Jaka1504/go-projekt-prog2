@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
@@ -13,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import static java.lang.Math.min;
+import static java.lang.Math.max;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -46,9 +48,9 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 	protected JButton pass;
 	protected JButton razveljavi;
 	
-	protected JLabel napis;
-	protected JLabel razlikaCrni;
-	protected JLabel razlikaBeli;
+	protected String napis;
+	protected String razlikaCrni;
+	protected String razlikaBeli;
 
 	
 	public Platno(int sirina, int visina) {
@@ -77,15 +79,17 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		razveljavi.addActionListener(this);
 		
 		// Napis
+		/*
 		napis = new JLabel();
 		napis.setBackground(new Color(255,255,255,127));
 		napis.setOpaque(true);
 		napis.setHorizontalAlignment(JLabel.CENTER);
 //		napis.setFont(new Font("Serif", Font.PLAIN, 20));
+		*/
 		posodobiNapis("Prični novo igro");
 		
-		razlikaCrni = new JLabel();
-		razlikaBeli = new JLabel();
+		razlikaCrni = "";
+		razlikaBeli = "";
 
 	}
 
@@ -137,6 +141,15 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		// top-left y
 		int tly = getTly();
 		
+		// FONTI
+		int fontSize = min((int)(0.5 * sirina / 10 * razmikNaMrezi), razmikNaMrezi / 2);
+        Font font = new Font("Serif", Font.BOLD, fontSize);
+        g2.setFont(font);
+        FontMetrics metrika = g2.getFontMetrics(font);
+        
+        int fontVelikSize = (int)(0.7 * razmikNaMrezi);
+        Font fontVelik = new Font("Serif", Font.BOLD, fontVelikSize);
+        FontMetrics metrikaFontVelik = g2.getFontMetrics(fontVelik);
 		
 		// MREŽNE ČRTE
 		g2.setStroke(debelinaMreznihCrt);
@@ -175,19 +188,11 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		int premerZetona = zaokrozi(razmikNaMrezi * 0.6667);
 		for (int x = 0; x < sirina; x++) {
 			for (int y = 0; y < visina; y++) {
-				int xZetona = zaokrozi(razmikNaMrezi * (x - 0.3333) + tlx);
-				int yZetona = zaokrozi(razmikNaMrezi * (y - 0.3333) + tly);
 				if (igra.vrednost(x, y) == Polje.BEL) {
-					g.setColor(barvaBelih);
-					g.fillOval(xZetona, yZetona, premerZetona, premerZetona);
-					g.setColor(barvaRobaBelih);
-					g.drawOval(xZetona, yZetona, premerZetona, premerZetona);
+					narisiZeton(g, barvaBelih, tlx + x * razmikNaMrezi, tly + y * razmikNaMrezi, premerZetona);
 				}
 				else if (igra.vrednost(x, y) == Polje.CRN) {
-					g.setColor(barvaCrnih);
-					g.fillOval(xZetona, yZetona, premerZetona, premerZetona);
-					g.setColor(barvaRobaCrnih);
-					g.drawOval(xZetona, yZetona, premerZetona, premerZetona);
+					narisiZeton(g, barvaCrnih, tlx + x * razmikNaMrezi, tly + y * razmikNaMrezi, premerZetona);
 				}
 			}
 		}
@@ -215,32 +220,40 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		int crnihZaPrikaz = Math.min(maksimalnoZaPrikaz, igra.steviloCrnihUjetnihov());
 		for (int i = 0; i < crnihZaPrikaz; i++) {
 			int ostanek = i % 4;
-			int xZetona = zaokrozi(razmikNaMrezi * (- ostanek - 2 - 0.3333 + 0.5) + tlx);
-			int yZetona = zaokrozi(razmikNaMrezi * (0 + (i / 4) - 0.3333 + 0.5) + tly);
-			g.setColor(barvaCrnih);
-			g.fillOval(xZetona, yZetona, premerZetona, premerZetona);
-			g.setColor(barvaRobaCrnih);
-			g.drawOval(xZetona, yZetona, premerZetona, premerZetona);
+			//int xZetona = zaokrozi(razmikNaMrezi * (- ostanek - 2 - 0.3333 + 0.5) + tlx);
+			//int yZetona = zaokrozi(razmikNaMrezi * (0 + (i / 4) - 0.3333 + 0.5) + tly);
+			narisiZeton(
+					g,
+					barvaCrnih,
+					(int)(tlx + (- 2 - ostanek + 0.5) * razmikNaMrezi),
+					(int)(tly + (i / 4 + 0.5) * razmikNaMrezi),
+					premerZetona);
 		}
 		
-		if (igra.steviloCrnihUjetnihov() > maksimalnoZaPrikaz) {
-			int razlika = igra.steviloCrnihUjetnihov() - maksimalnoZaPrikaz;
-			razlikaCrni.setText("+ " + Integer.toString(razlika) + " × ");
-			razlikaCrni.setBounds(
-					zaokrozi(tlx - 1.9 * razmikNaMrezi - razlikaCrni.getPreferredSize().width),
+		
+//		if (igra.steviloCrnihUjetnihov() > maksimalnoZaPrikaz) {
+//			int razlika = igra.steviloCrnihUjetnihov() - maksimalnoZaPrikaz;
+		if (true) {
+			int razlika = 15;
+			razlikaCrni = "+ " + Integer.toString(razlika) + " × ";
+			g2.setColor(Color.BLACK);
+			g2.setFont(fontVelik);
+			napisiNaDesno(
+					razlikaCrni,
+					zaokrozi(tlx - 4.85 * razmikNaMrezi),
 					tly + (visina - 2) * razmikNaMrezi,
-					razlikaCrni.getPreferredSize().width,
-					razlikaCrni.getPreferredSize().height);
-			razlikaCrni.setHorizontalAlignment(JLabel.RIGHT);
-			razlikaCrni.setFont(new Font("Serif", Font.BOLD, zaokrozi(0.7 * razmikNaMrezi)));
-			this.add(razlikaCrni);
+					3 * razmikNaMrezi,
+					razmikNaMrezi,
+					g2,
+					metrikaFontVelik
+					);
 			int xZetona = zaokrozi(razmikNaMrezi * (-2 - 0.3333 + 0.5) + tlx);
 			int yZetona = zaokrozi(razmikNaMrezi * ((visina - 2) - 0.3333 + 0.5) + tly);
 			g.setColor(barvaCrnih);
 			g.fillOval(xZetona, yZetona, premerZetona, premerZetona);
 			g.setColor(barvaRobaCrnih);
 			g.drawOval(xZetona, yZetona, premerZetona, premerZetona);
-		} else razlikaCrni.setText("");
+		} else razlikaCrni = "";
 		
 		int belihZaPrikaz = Math.min(maksimalnoZaPrikaz, igra.steviloBelihUjetnikov());
 		for (int i = 0; i < belihZaPrikaz; i++) {
@@ -253,24 +266,28 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 			g.drawOval(xZetona, yZetona, premerZetona, premerZetona);
 		}
 		
-		if (igra.steviloBelihUjetnikov() > maksimalnoZaPrikaz) {
-			int razlika = igra.steviloBelihUjetnikov() - maksimalnoZaPrikaz;
-			razlikaBeli.setText("+ " + Integer.toString(razlika) + " × ");
-			razlikaBeli.setBounds(
-					zaokrozi(tlx + (sirina + 3.1) * razmikNaMrezi - razlikaBeli.getPreferredSize().width),
+//		if (igra.steviloBelihUjetnikov() > maksimalnoZaPrikaz) {
+//			int razlika = igra.steviloBelihUjetnikov() - maksimalnoZaPrikaz;
+		if (true) {
+			int razlika = 15;
+			razlikaBeli = "+ " + Integer.toString(razlika) + " × ";
+			g2.setColor(Color.BLACK);
+			g2.setFont(fontVelik);
+			napisiNaDesno(
+					razlikaBeli,
+					zaokrozi(tlx + (sirina + 0.15) * razmikNaMrezi),
 					tly + (visina - 2) * razmikNaMrezi,
-					razlikaBeli.getPreferredSize().width,
-					razlikaBeli.getPreferredSize().height);
-			razlikaBeli.setHorizontalAlignment(JLabel.RIGHT);
-			razlikaBeli.setFont(new Font("Serif", Font.BOLD, zaokrozi(0.7 * razmikNaMrezi)));
-			this.add(razlikaBeli);
+					3 * razmikNaMrezi,
+					razmikNaMrezi,
+					g2,
+					metrikaFontVelik);
 			int xZetona = zaokrozi(razmikNaMrezi * (sirina + 3 - 0.3333 + 0.5) + tlx);
 			int yZetona = zaokrozi(razmikNaMrezi * (visina - 2 - 0.3333 + 0.5) + tly);
 			g.setColor(barvaBelih);
 			g.fillOval(xZetona, yZetona, premerZetona, premerZetona);
 			g.setColor(barvaRobaBelih);
 			g.drawOval(xZetona, yZetona, premerZetona, premerZetona);
-		}else razlikaBeli.setText("");
+		} else razlikaBeli = "";
 		
 		
 		// Gumb PASS
@@ -280,7 +297,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
                 (int) razveljavi.getPreferredSize().getWidth(),
                 (int) pass.getPreferredSize().getHeight());
 		pass.setEnabled(Vodja.clovekNaVrsti); 							// Lahko pritisnes ce je clovek na vrsti, sicer ne
-		// this.add(pass);
+		this.add(pass);
 		
 		// Gumb RAZVELJAVI
 		razveljavi.setBounds(
@@ -294,15 +311,40 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		// Lahko pa na koncu, tudi če je končal računalnik, če je bil v igri kak človek
 		boolean pogojZaRazveljavitev = (Vodja.clovekNaVrsti || (igra.stanje() != Stanje.V_TEKU && Vodja.vrstiIgralcev.containsValue(Vodja.VrstaIgralca.CLOVEK)));
 		razveljavi.setEnabled(pogojZaRazveljavitev);
-		// this.add(razveljavi);
+		this.add(razveljavi);
 		
-		// Napis
+		// NAPIS
+		this.narisiZaobljenPravokotnik(
+				g,
+				new Color(233, 211, 188),
+				(int) (tlx),
+				(int) (tly - 1 * razmikNaMrezi - fontSize),
+                (int) (sirina - 1) * razmikNaMrezi,
+                (int) razmikNaMrezi,
+                (int) (0.3 * razmikNaMrezi)
+				);
+		
+		g2.setColor(Color.BLACK);
+		g2.setFont(font);
+		
+		this.napisiNaSredino(
+				napis,
+				(int) (tlx),
+				(int) (tly - 1 * razmikNaMrezi - fontSize),
+                (int) (sirina - 1) * razmikNaMrezi,
+                (int) razmikNaMrezi,
+				g2,
+				metrika);
+		
+		
+		/*
 		napis.setBounds(
 				(int) (tlx),
 				(int) (tly - 0.5 * razmikNaMrezi - napis.getPreferredSize().getHeight()),
                 (int) (sirina - 1) * razmikNaMrezi,
                 (int) napis.getPreferredSize().getHeight());
-		/*
+		
+		
 		napis.setBorder(new EmptyBorder(
 				5,
 				(int) ((sirina * razmikNaMrezi - napis.getPreferredSize().getWidth()) / 2.0),
@@ -325,8 +367,9 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		}
 		*/
 		
-		napis.setFont(new Font("Serif", Font.PLAIN, (int)(0.7 * razmikNaMrezi)));
-		this.add(napis);
+		// napis.setFont(new Font("Serif", Font.PLAIN, (int)(0.7 * razmikNaMrezi)));
+		
+		// this.add(napis);
 		
 		// DEBUG:
 		// System.out.println(igra);
@@ -334,6 +377,35 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 	
 	private int zaokrozi(double x) {
 		return (int)(x + 0.5);
+	}
+	
+	private void napisiNaSredino(String text, int tlx, int tly, int sirina, int visina, Graphics g, FontMetrics metrika) {
+		// Izpiše tekst na sredini pravokotnika z danimi parametri
+		int sirinaTeksta = metrika.stringWidth(text);
+		System.out.print("Dolzina teksta \"" + text + "\": ");
+		System.out.println(sirinaTeksta);
+		int visinaTeksta = metrika.getHeight();
+		int tlxTeksta = (int)(tlx + 0.5 * (sirina - sirinaTeksta));
+		int tlyTeksta = (int)(tly + 0.5 * (visina - visinaTeksta));
+		g.drawString(text, tlxTeksta, tlyTeksta + metrika.getAscent());
+	}
+	
+	private void napisiNaDesno(String text, int tlx, int tly, int sirina, int visina, Graphics g, FontMetrics metrika) {
+		// Izpiše tekst na desno stran pravokotnika z danimi parametri
+		int sirinaTeksta = metrika.stringWidth(text);
+		int visinaTeksta = metrika.getHeight();
+		int tlxTeksta = (int)(tlx + sirina - sirinaTeksta);
+		int tlyTeksta = (int)(tly + 0.5 * (visina - visinaTeksta));
+		g.drawString(text, tlxTeksta, tlyTeksta + metrika.getAscent());
+	}
+	
+	private void narisiZeton(Graphics g, Color barva, int x, int y, int premer) {
+		int xZetona = x - premer / 2;
+		int yZetona = y - premer / 2;
+		g.setColor(barva);
+		g.fillOval(xZetona, yZetona, premer, premer);
+		g.setColor(barvaRoba(barva));
+		g.drawOval(xZetona, yZetona, premer, premer);
 	}
 	
 	private void narisiZaobljenPravokotnik(Graphics g, Color barva, int tlx, int tly, int sirina, int visina, int polmerUkrivljanja) {
@@ -350,7 +422,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		g.fillRect(tlx, tly + polmerUkrivljanja, sirina, visina - 2 * polmerUkrivljanja);
 		
 		// Rob
-		g.setColor(barvaObmocjaZaUjete.darker());
+		g.setColor(barva.darker());
 		g.drawArc(tlx, tly, 2 * polmerUkrivljanja, 2 * polmerUkrivljanja,
 				90, 90);
 		g.drawArc(tlx + sirina - 2 * polmerUkrivljanja, tly, 2 * polmerUkrivljanja, 2 * polmerUkrivljanja,
@@ -365,6 +437,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		g.drawLine(tlx + polmerUkrivljanja, tly + visina, tlx + sirina - polmerUkrivljanja, tly + visina);
 	}
 	
+	/*
 	public void posodobiNapis(String text) {
 		napis.setText(text);
 		this.repaint();
@@ -396,6 +469,45 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		}
 		napis.setText(text);
 		this.repaint();
+	}
+	
+	*/
+	
+	public void posodobiNapis(String text) {
+		napis = text;
+		this.repaint();
+	}
+	
+	public void posodobiNapis() {
+		String text = "";
+		switch (igra.stanje()) {
+		case ZMAGA_CRNI: 
+			text = "Zmagal je črni igralec";
+			break;
+		case ZMAGA_BELI:
+			text = "Zmagal je beli igralec";
+			break;
+		case NEODLOCENO:
+			text += "Neodločeno";
+			break;
+		case V_TEKU:
+			switch (igra.naPotezi()) {
+			case BELI:
+				text = "Na potezi je beli igralec";
+				break;
+			case CRNI:
+				text = "Na potezi je črni igralec";
+				break;
+			default:
+				break;
+			}
+		}
+		napis = text;
+		this.repaint();
+	}
+	
+	private Color barvaRoba(Color barva) {
+		return (svetlost(barva) > 100.0) ? barva.darker() : barva.brighter().brighter();
 	}
 	
 	private int getRazmikNaMrezi() {
