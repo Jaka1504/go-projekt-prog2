@@ -332,6 +332,7 @@ public class Igra {
 			if (ujetniki == null) {
 				// Lokalno posodobimo teritorije in meje
 				lokalnoPosodobiTeritorijeInMeje(koordinate);
+				zadnjiUjetnik = null;
 			}
 			else {
 				// Odstranimo ujete skupine
