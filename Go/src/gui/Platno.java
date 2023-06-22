@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import logika.Igra;
+import logika.Igra.Stanje;
 import logika.Koordinate;
 import logika.Polje;
 import splosno.Poteza;
@@ -270,7 +271,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 				(int) (tly + (visina - 0.5) * razmikNaMrezi),
                 (int) razveljavi.getPreferredSize().getWidth(),
                 (int) pass.getPreferredSize().getHeight());
-		pass.setEnabled(Vodja.clovekNaVrsti); // Lahko pritisnes ce je clovek na vrsti, sicer ne
+		pass.setEnabled(Vodja.clovekNaVrsti); 							// Lahko pritisnes ce je clovek na vrsti, sicer ne
 		this.add(pass);
 		
 		// Gumb RAZVELJAVI
@@ -279,7 +280,12 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 				(int) (tly + (visina - 0.5) * razmikNaMrezi),
                 (int) razveljavi.getPreferredSize().getWidth(),
                 (int) razveljavi.getPreferredSize().getHeight());
-		razveljavi.setEnabled(Vodja.clovekNaVrsti); // Lahko pritisnes ce je clovek na vrsti, sicer ne
+		
+		// Lahko pritisnes ce je clovek na vrsti, sicer ne
+		// Ne moreš pritisniti na začetku
+		// Lahko pa na koncu, tudi če je končal računalnik, če je bil v igri kak človek
+		boolean pogojZaRazveljavitev = (Vodja.clovekNaVrsti || (igra.stanje() != Stanje.V_TEKU && Vodja.vrstiIgralcev.containsValue(Vodja.VrstaIgralca.CLOVEK)));
+		razveljavi.setEnabled(pogojZaRazveljavitev);
 		this.add(razveljavi);
 		
 		// Napis
@@ -436,9 +442,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 			}
 		}
 		if (e.getSource() == razveljavi) {
-			if (Vodja.clovekNaVrsti) {
-				Vodja.undo();
-			}
+			Vodja.undo();
 		}
 	}
 	

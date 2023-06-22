@@ -98,7 +98,7 @@ public class Vodja {
 	
 	public static void undo() {
 		// Vrne igro v prejšnji položaj, pri katerem je bil na vrsti človek
-		if (zgodovina.empty()) return;
+		if (zgodovina.size() <= 1) return;
 		zgodovina.pop(); // odstani trenutno igro z vrha kupa
 		while (!zgodovina.empty()) {
 			KompaktenZapisIgre zeljenaIgra = zgodovina.pop();
