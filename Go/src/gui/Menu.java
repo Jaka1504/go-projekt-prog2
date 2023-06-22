@@ -27,16 +27,23 @@ public class Menu extends JMenuBar implements ActionListener{
 	JMenu barveIgralcev;
 	JMenuItem crniZetoni;
 	JMenuItem beliZetoni;
-	protected Igra igra;
 	JButton pravilaIgre;
 	Platno platno;
 	
 	public Menu(Platno platno) {
 		super();
 		this.platno = platno;
+		
+		// Nova igra
 	    novaIgra = new JButton("Ustvari novo igro");
 	    novaIgra.addActionListener(this);
-	    add(novaIgra);	    
+	    novaIgra.setOpaque(true);
+	    novaIgra.setContentAreaFilled(false);
+	    novaIgra.setBorderPainted(false);
+	    novaIgra.setFocusable(false);
+	    add(novaIgra);
+	    
+	    // Barve igralcev
 	    barveIgralcev = new JMenu("Spremeni barve žetonov");
 	    crniZetoni = new JMenuItem("Spremeni barvo črnih žetonov");
 	    crniZetoni.addActionListener(this);
@@ -45,39 +52,44 @@ public class Menu extends JMenuBar implements ActionListener{
 	    barveIgralcev.add(crniZetoni);
 	    barveIgralcev.add(beliZetoni);
 	    add(barveIgralcev);
+	    
+	    // Pravila igre
 	    pravilaIgre = new JButton("Pravila igre");
 	    pravilaIgre.addActionListener(this);
+	    pravilaIgre.setOpaque(true);
+	    pravilaIgre.setContentAreaFilled(false);
+	    pravilaIgre.setBorderPainted(false);
+	    pravilaIgre.setFocusable(false);
 	    add(pravilaIgre);
-	}
-	
-	
-	public void nastaviIgro(Igra igra) {
-		this.igra = igra;
 	}
 	
 	@Override
     public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == novaIgra) {
 			JFrame infoOkno = new JFrame(); 
-			infoOkno.setSize(250,300);
+			
 			infoOkno.setTitle("Nova igra");
-			infoOkno.setResizable(false);
+			// infoOkno.setResizable(false); TODO
 			PlatnoInfo infoPlatno = new PlatnoInfo(infoOkno);
 			infoOkno.add(infoPlatno);
+			infoOkno.pack();
+			infoOkno.setSize(2 * infoOkno.getPreferredSize().width, infoOkno.getPreferredSize().height);
+			infoOkno.setLocationRelativeTo(this.getParent());
 			infoOkno.setVisible(true);	
 		}
 		else if (e.getSource() == crniZetoni) {
-			JColorChooser izbiraBarveCrni = new JColorChooser();
-			Color barva = JColorChooser.showDialog(null, "Spremeni barvo črnih žetonov", Color.BLACK);
+			// JColorChooser izbiraBarveCrni = new JColorChooser();
+			Color barva = JColorChooser.showDialog(this.getParent(), "Spremeni barvo črnih žetonov", Color.BLACK);
 			//this.igra.nastaviBarvoCrnih(barva);
 			this.platno.nastaviBarvoCrn(barva);
 		}
 		else if (e.getSource() == beliZetoni) {
-			JColorChooser izbiraBarveBeli = new JColorChooser();
-			Color barva = JColorChooser.showDialog(null, "Spremeni barvo belih žetonov", Color.WHITE);
+			// JColorChooser izbiraBarveBeli = new JColorChooser();
+			Color barva = JColorChooser.showDialog(this.getParent(), "Spremeni barvo belih žetonov", Color.WHITE);
 			//this.igra.nastaviBarvoBelih(barva);
 			this.platno.nastaviBarvoBel(barva);
 		}
+
 		else if (e.getSource() == pravilaIgre) {
 			String pravila = "<html><body width='%1s'>"
 					

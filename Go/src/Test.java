@@ -11,6 +11,7 @@ public class Test {
 		Igra igra = new Igra(9, 9);
 		okno.platno().nastaviIgro(igra);
 		okno.pack();				// sestavi okno
+		okno.setLocationRelativeTo(null);
 		okno.setVisible(true);		// pokaze okno
 		Vodja.okno = okno;
 		

@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.EnumMap;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -23,7 +25,7 @@ public class PlatnoInfo extends JPanel implements ActionListener{
 	private JFrame frame;
 	
 	JComboBox<String> igralecB;
-	JComboBox<String> igralecČ;
+	JComboBox<String> igralecC;
 	JComboBox<Integer> sirina;
 	JComboBox<Integer> visina;
 	JButton novaIgra;
@@ -31,77 +33,96 @@ public class PlatnoInfo extends JPanel implements ActionListener{
 	public PlatnoInfo(JFrame frame) {
 		this.frame = frame;
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		
-		setPreferredSize(new Dimension(100, 100));
-		
-		JLabel spacingLabel = new JLabel();
-        spacingLabel.setPreferredSize(new Dimension(0, 20));
-        add(spacingLabel);
+		this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		
 		JLabel beli = new JLabel("Beli igralec:");
+		beli.setAlignmentX(Component.LEFT_ALIGNMENT);
 	    add(beli);
+	    
 	    String[] igralci = {"Človek","Računalnik"};
 	    igralecB = new JComboBox<String>(igralci);
 	    igralecB.addActionListener(this);
+	    igralecB.setAlignmentX(Component.LEFT_ALIGNMENT);
 	    add(igralecB);
-	    JLabel črni = new JLabel("Črni igralec:");
-	    add(črni);
-	    igralecČ = new JComboBox<String>(igralci);
-	    igralecČ.addActionListener(this);
-	    add(igralecČ);
+	    dodajRazmik();
+	    
+	    JLabel crni = new JLabel("Črni igralec:");
+	    crni.setAlignmentX(Component.LEFT_ALIGNMENT);
+	    add(crni);
+	    
+	    igralecC = new JComboBox<String>(igralci);
+	    igralecC.addActionListener(this);
+	    igralecC.setAlignmentX(Component.LEFT_ALIGNMENT);
+	    add(igralecC);
+	    dodajRazmik();
+	    
 	    Integer[] stevilke = {5,6,7,8,9,10,11,12,13,14,15,16,17,18,19};
 	    JLabel napisSirina = new JLabel("Širina:");
+	    napisSirina.setAlignmentX(Component.LEFT_ALIGNMENT);
 	    add(napisSirina);
+	    
 	    sirina = new JComboBox<Integer>(stevilke);
 	    sirina.setSelectedItem(9);
 	    sirina.addActionListener(this);
+	    sirina.setAlignmentX(Component.LEFT_ALIGNMENT);
 	    add(sirina);
+	    dodajRazmik();
+	    
 	    JLabel napisVisina = new JLabel("Višina:");
+	    napisVisina.setAlignmentX(Component.LEFT_ALIGNMENT);
 	    add(napisVisina);
+	    
 	    visina = new JComboBox<Integer>(stevilke);
 	    visina.setSelectedItem(9);
 	    visina.addActionListener(this);
+	    visina.setAlignmentX(Component.LEFT_ALIGNMENT);
 	    add(visina);
+	    dodajRazmik();
 	    
 	    novaIgra = new JButton("Prični igro");
 	    novaIgra.addActionListener(this);
-	    //novaIgra.setAlignmentX(Component.LEFT_ALIGNMENT);
-	    this.add(novaIgra);
+	    novaIgra.setAlignmentX(CENTER_ALIGNMENT);
 	    
-	    JLabel spacingLabel2 = new JLabel();
-        spacingLabel2.setPreferredSize(new Dimension(0, 20));
-        add(spacingLabel2);
+	    JPanel gumb = new JPanel();
+	    gumb.setAlignmentX(LEFT_ALIGNMENT);
+	    gumb.add(novaIgra);
+	    add(gumb);
 	}
+	
+	private void dodajRazmik() {
+		add(Box.createRigidArea(new Dimension(0, 7)));
+	}
+	
 	
 	@Override
     public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == novaIgra) {
 			String igralecBeli = (String) igralecB.getSelectedItem();
-			String igralecČrni = (String) igralecČ.getSelectedItem();
+			String igralecCrni = (String) igralecC.getSelectedItem();
 			int s = (int) sirina.getSelectedItem();
 			int v = (int) visina.getSelectedItem();
-			if (igralecBeli == "Človek" && igralecČrni == "Človek") {
+			if (igralecBeli == "Človek" && igralecCrni == "Človek") {
 				Vodja.vrstiIgralcev =
         		new EnumMap<Igra.BarvaIgralca, VrstaIgralca>(Igra.BarvaIgralca.class);
 				Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.BELI, VrstaIgralca.CLOVEK);
 				Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.CRNI, VrstaIgralca.CLOVEK);
 				Vodja.ustvariNovoIgro(s, v);
 			}
-			else if (igralecBeli == "Računalnik" && igralecČrni == "Človek") {
+			else if (igralecBeli == "Računalnik" && igralecCrni == "Človek") {
 	            Vodja.vrstiIgralcev =
 	            		new EnumMap<Igra.BarvaIgralca, VrstaIgralca>(Igra.BarvaIgralca.class);
 	            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.CRNI, VrstaIgralca.CLOVEK);
 	            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.BELI, VrstaIgralca.RACUNALNIK);
 	            Vodja.ustvariNovoIgro(s, v);
 			}
-			else if (igralecBeli == "Človek" && igralecČrni == "Računalnik") { 
+			else if (igralecBeli == "Človek" && igralecCrni == "Računalnik") { 
 	            Vodja.vrstiIgralcev =
 	            		new EnumMap<Igra.BarvaIgralca, VrstaIgralca>(Igra.BarvaIgralca.class);
 	            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.CRNI, VrstaIgralca.RACUNALNIK);
 	            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.BELI, VrstaIgralca.CLOVEK);
 	            Vodja.ustvariNovoIgro(s, v);
 			}
-			else if (igralecBeli == "Računalnik" && igralecČrni == "Računalnik") { 
+			else if (igralecBeli == "Računalnik" && igralecCrni == "Računalnik") { 
 	            Vodja.vrstiIgralcev =
 	            		new EnumMap<Igra.BarvaIgralca, VrstaIgralca>(Igra.BarvaIgralca.class);
 	            Vodja.vrstiIgralcev.put(Igra.BarvaIgralca.BELI, VrstaIgralca.RACUNALNIK);
