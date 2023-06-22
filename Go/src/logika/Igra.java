@@ -30,7 +30,7 @@ public class Igra {
 	}
 	
 	public enum Stanje {
-		ZMAGA_CRNI, ZMAGA_BELI, V_TEKU
+		ZMAGA_CRNI, ZMAGA_BELI, V_TEKU, NEODLOCENO;
 	}
 	
 	// =================== Atributi razreda =================== 
@@ -298,7 +298,7 @@ public class Igra {
 				Koordinate rezultat = tocke();
 				if (rezultat.x() > rezultat.y()) stanje = Stanje.ZMAGA_CRNI;
 				else if (rezultat.x() < rezultat.y()) stanje = Stanje.ZMAGA_BELI;
-				else stanje = Stanje.ZMAGA_BELI; // TODO neodloceno dodaj
+				else stanje = Stanje.NEODLOCENO; 
 				
 				predajPotezo(koordinate);
 				return true;
@@ -690,31 +690,6 @@ public class Igra {
 
 		return moznosti;		
 	}
-	
-	// =================== Prilagojen napis =================== 
-	
-	/*
-	public String napis(Koordinate koordinate) {
-		if (!legalnostKo(koordinate)) return "Ta poteza ni dovoljena";
-		if (!legalnostSamomor(koordinate)) return "Ta poteza ni dovoljena";
-		switch (this.stanje) {
-			case ZMAGA_CRNI: 
-				return "Zmagal je črni igralec";
-			case ZMAGA_BELI:
-				return "Zmagal je beli igralev";
-			case V_TEKU:
-				switch (this.naPotezi) {
-				case BELI:
-					return "Na potezi je beli igralec";
-				case CRNI:
-					return "Na potezi je črni igralec";
-				default:
-					break;
-				}
-		}
-		return null;
-	}
-	*/
 
 	// =================== Za v pomoč pri debugganju =================== 
 	
@@ -751,6 +726,9 @@ public class Igra {
 			break;
 		case ZMAGA_CRNI:
 			prikaz += "zmaga črni";
+			break;
+		case NEODLOCENO:
+			prikaz += "neodloceno";
 			break;
 		}
 		return prikaz;

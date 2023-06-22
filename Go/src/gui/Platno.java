@@ -363,6 +363,9 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		case ZMAGA_BELI:
 			text = "Zmagal je beli igralev";
 			break;
+		case NEODLOCENO:
+			text += "Neodločeno";
+			break;
 		case V_TEKU:
 			switch (igra.naPotezi()) {
 			case BELI:
