@@ -81,6 +81,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		napis.setOpaque(true);
 		napis.setHorizontalAlignment(JLabel.CENTER);
 		napis.setFont(new Font("Serif", Font.PLAIN, 20));
+		posodobiNapis("Prični novo igro");
 		
 		razlikaCrni = new JLabel();
 		razlikaBeli = new JLabel();
@@ -293,7 +294,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 				(int) ((sirina * razmikNaMrezi - napis.getPreferredSize().getWidth()) / 2.0),
 				5,
 				(int) ((sirina * razmikNaMrezi - napis.getPreferredSize().getWidth()) / 2.0)));//top,left,bottom,right
-		*/
+		
 		if (this.igra == null) {
 			napis.setText("Prični novo igro");
 		}
@@ -308,6 +309,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 					napis.setText("V teku");
 			}
 		}
+		*/
 		this.add(napis);
 		
 		// DEBUG:
@@ -345,6 +347,36 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		g.drawLine(tlx + sirina, tly + polmerUkrivljanja, tlx + sirina, tly + visina - polmerUkrivljanja);
 		g.drawLine(tlx + polmerUkrivljanja, tly, tlx + sirina - polmerUkrivljanja, tly);
 		g.drawLine(tlx + polmerUkrivljanja, tly + visina, tlx + sirina - polmerUkrivljanja, tly + visina);
+	}
+	
+	public void posodobiNapis(String text) {
+		napis.setText(text);
+		this.repaint();
+	}
+	
+	public void posodobiNapis() {
+		String text = "";
+		switch (igra.stanje()) {
+		case ZMAGA_CRNI: 
+			text = "Zmagal je črni igralec";
+			break;
+		case ZMAGA_BELI:
+			text = "Zmagal je beli igralev";
+			break;
+		case V_TEKU:
+			switch (igra.naPotezi()) {
+			case BELI:
+				text = "Na potezi je beli igralec";
+				break;
+			case CRNI:
+				text = "Na potezi je črni igralec";
+				break;
+			default:
+				break;
+			}
+		}
+		napis.setText(text);
+		this.repaint();
 	}
 	
 	@Override

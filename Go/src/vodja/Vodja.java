@@ -30,7 +30,6 @@ public class Vodja {
 		crnInteligenca = new Inteligenca();
 		belInteligenca = new Inteligenca();
 		okno.platno().nastaviIgro(igra);
-		okno.menu().nastaviIgro(igra);
 		igramo();
 	}
 	
@@ -41,7 +40,8 @@ public class Vodja {
 	public static void igramo() {
 		// Ce je igra se v teku, poklice racunalnikovo potezo ali
 		// nastavi clovekNaVrsti na true
-		okno.platno().repaint();
+		if (igra.sporociloNapake() == null) okno.platno().posodobiNapis();
+		else okno.platno().posodobiNapis(igra.sporociloNapake());
 		zgodovina.add(new KompaktenZapisIgre(igra));
 		if (igra.stanje() == Igra.Stanje.V_TEKU) {
 			Igra.BarvaIgralca naPotezi = igra.naPotezi();
@@ -88,6 +88,10 @@ public class Vodja {
 			okno.platno().repaint();
 			clovekNaVrsti = false;
 			igramo ();
+		}
+		else {
+			if (igra.sporociloNapake() == null) okno.platno().posodobiNapis();
+			else okno.platno().posodobiNapis(igra.sporociloNapake());
 		}
 	}
 	

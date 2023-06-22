@@ -51,6 +51,7 @@ public class Igra {
 	protected Koordinate zadnjiUjetnik;
 	protected int steviloCrnihUjetnikov;
 	protected int steviloBelihUjetnikov;
+	protected String sporociloNapake = null;
 
 	// =================== Konstruktorji =================== 
 	
@@ -236,6 +237,10 @@ public class Igra {
 		return zadnjaPoteza;
 	}
 	
+	public String sporociloNapake() {
+		return sporociloNapake;
+	}
+	
 	/*
 	@Override
 	public String toString() {
@@ -279,6 +284,7 @@ public class Igra {
 	// =================== GLAVNA METODA: odigraj =================== 
 	
 	public boolean odigraj(Poteza poteza) {
+		sporociloNapake = null;
 		// Poskusi odigrati potezo, vrne true če mu to uspe, false sicer
 		int x = poteza.x();
 		int y = poteza.y();
@@ -306,8 +312,14 @@ public class Igra {
 		// Če poteza ni PASS
 		if (vrednost(koordinate) == Polje.PRAZNO) {
 			// Preveri ko in samomor (nelegalni potezi)
-			if (!legalnostKo(koordinate)) return false;
-			if (!legalnostSamomor(koordinate)) return false;
+			if (!legalnostKo(koordinate)) {
+				sporociloNapake = "Ta poteza ni v skladu s pravilom Ko";
+				return false;
+			}
+			if (!legalnostSamomor(koordinate)) {
+				sporociloNapake = "Samomorilna poteza ni dovoljena";
+				return false;
+			}
 			
 			// Postavi žeton
 			postaviZeton(koordinate);
