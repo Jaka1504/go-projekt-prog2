@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -23,11 +25,13 @@ import vodja.Vodja.VrstaIgralca;
 public class PlatnoInfo extends JPanel implements ActionListener{
 
 	private JFrame frame;
+	private static Map<String, Integer> mozneTezavnosti;
 	
 	JComboBox<String> igralecB;
 	JComboBox<String> igralecC;
 	JComboBox<Integer> sirina;
 	JComboBox<Integer> visina;
+	JComboBox<String> tezavnost;
 	JButton novaIgra;
 	
 	public PlatnoInfo(JFrame frame) {
@@ -79,6 +83,32 @@ public class PlatnoInfo extends JPanel implements ActionListener{
 	    add(visina);
 	    dodajRazmik();
 	    
+	    JLabel napisTezavnost = new JLabel("Težavnost (čas za računalnikovo potezo):");
+	    napisTezavnost.setAlignmentX(Component.LEFT_ALIGNMENT);
+	    add(napisTezavnost);
+	    
+	    mozneTezavnosti = new HashMap<String, Integer>();
+	    mozneTezavnosti.put("Naključne poteze", 10);
+	    mozneTezavnosti.put("Lahko", 500);
+	    mozneTezavnosti.put("Precej lahko", 1000);
+	    mozneTezavnosti.put("Srednje", 5000);
+	    mozneTezavnosti.put("Precej težko", 7500);
+	    mozneTezavnosti.put("Težko", 10000);
+	    String[] tezavnostiArray = {
+	    		"Naključne poteze",
+	    	    "Lahko",
+	    	    "Precej lahko",
+	    	    "Srednje",
+	    	    "Precej težko",
+	    	    "Težko"
+	    };	    
+	    tezavnost = new JComboBox<String>(tezavnostiArray);
+	    tezavnost.setSelectedItem("Srednje");
+	    tezavnost.addActionListener(this);
+	    tezavnost.setAlignmentX(Component.LEFT_ALIGNMENT);
+	    add(tezavnost);
+	    dodajRazmik();
+	    
 	    novaIgra = new JButton("Prični igro");
 	    novaIgra.addActionListener(this);
 	    novaIgra.setAlignmentX(CENTER_ALIGNMENT);
@@ -101,6 +131,11 @@ public class PlatnoInfo extends JPanel implements ActionListener{
 			String igralecCrni = (String) igralecC.getSelectedItem();
 			int s = (int) sirina.getSelectedItem();
 			int v = (int) visina.getSelectedItem();
+			String izbranaTezavnost = (String) tezavnost.getSelectedItem();
+			
+			int trajanje = mozneTezavnosti.get(izbranaTezavnost);
+			Vodja.trajanje = trajanje;
+			
 			if (igralecBeli == "Človek" && igralecCrni == "Človek") {
 				Vodja.vrstiIgralcev =
         		new EnumMap<Igra.BarvaIgralca, VrstaIgralca>(Igra.BarvaIgralca.class);

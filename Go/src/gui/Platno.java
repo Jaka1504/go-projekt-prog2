@@ -107,6 +107,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 	}
 	
 	private double svetlost(Color barva) {
+		// Source: https://www.nbdtech.com/Blog/archive/2008/04/27/calculating-the-perceived-brightness-of-a-color.aspx
 		int r = barva.getRed();
 		int g = barva.getGreen();
 		int b = barva.getBlue();
@@ -309,7 +310,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 				g,
 				new Color(233, 211, 188),
 				(int) (tlx),
-				(int) (tly - razmikNaMrezi - fontSize),
+				(int) (tly - 1.5 * razmikNaMrezi),
                 (int) (sirina - 1) * razmikNaMrezi,
                 (int) razmikNaMrezi,
                 (int) (0.3 * razmikNaMrezi)
@@ -322,7 +323,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 			napisiNaSredino(
 					napis,
 					(int) (tlx),
-					(int) (tly - razmikNaMrezi - fontSize),
+					(int) (tly - 1.5 * razmikNaMrezi),
 	                (int) (sirina - 1) * razmikNaMrezi,
 	                (int) razmikNaMrezi,
 					g2,
@@ -333,7 +334,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 			napisiNaSredino(
 					napis,
 					(int) (tlx),
-					(int) (tly - razmikNaMrezi - fontSize),
+					(int) (tly - 1.5 * razmikNaMrezi),
 	                (int) (sirina - 1) * razmikNaMrezi - premer,
 	                (int) razmikNaMrezi,
 					g2,
@@ -342,7 +343,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 					g2, 
 					zetonZaNapis, 
 					(int) (tlx + 0.5 * ((sirina - 1) * razmikNaMrezi + metrika.stringWidth(napis))), 
-					(int) (tly - 0.5 * razmikNaMrezi - fontSize), 
+					(int) (tly - razmikNaMrezi), 
 					premer);
 			
 		}
@@ -393,7 +394,6 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 	private void napisiNaSredino(String text, int tlx, int tly, int sirina, int visina, Graphics g, FontMetrics metrika) {
 		// Izpiše tekst na sredini pravokotnika z danimi parametri
 		int sirinaTeksta = metrika.stringWidth(text);
-		System.out.println(sirinaTeksta);
 		int visinaTeksta = metrika.getHeight();
 		int tlxTeksta = (int)(tlx + 0.5 * (sirina - sirinaTeksta));
 		int tlyTeksta = (int)(tly + 0.5 * (visina - visinaTeksta));

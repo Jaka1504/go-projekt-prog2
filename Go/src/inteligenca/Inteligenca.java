@@ -12,14 +12,24 @@ import splosno.Poteza;
 
 public class Inteligenca extends KdoIgra{
 	
+	protected int trajanje;
 	protected MCTSVozlisce korenDrevesa;
-	protected Koordinate prejsnjaOdlocitev; 
+	protected Koordinate prejsnjaOdlocitev;
 	
-	private static Random random = new Random(123456);
+	private static Random random = new Random();
+	
+	public Inteligenca(String ime, int trajanje) {
+		super(ime);
+		this.trajanje = trajanje;
+		korenDrevesa = null;
+	}
 	
 	public Inteligenca(String ime) {
-		super(ime);
-		korenDrevesa = null;
+		this(ime, 5000);
+	}
+	
+	public Inteligenca(int trajanje) {
+		this("Lana Ramšak, Jaka Vrhovnik", trajanje);
 	}
 	
 	public Inteligenca() {
@@ -29,7 +39,7 @@ public class Inteligenca extends KdoIgra{
 	public Poteza izberiPotezo(Igra igra) {
 		// Poišče najustreznejšo potezo za dano igro
 		
-		return MCTSAlgoritem(igra, 500);
+		return MCTSAlgoritem(igra);
 	}
 
 	public static Poteza nakljucnaPoteza(Igra igra) {
@@ -37,7 +47,7 @@ public class Inteligenca extends KdoIgra{
 		return poteze.get(random.nextInt(poteze.size())).poteza();
 	}
 	
-	public Poteza MCTSAlgoritem(Igra igra, long trajanje) {
+	public Poteza MCTSAlgoritem(Igra igra) {
 		// Poišče najboljšo potezo z MCTS algoritmom, ki ga izvaja `trajanje` milisekund časa
 		
 		// Najprej poskrbimo za začetno drevo

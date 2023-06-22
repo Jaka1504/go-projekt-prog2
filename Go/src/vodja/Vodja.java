@@ -20,6 +20,7 @@ public class Vodja {
 	public static Okno okno;
 	public static Igra igra = null;
 	public static boolean clovekNaVrsti = false;
+	public static int trajanje = 10;
 	public static Inteligenca crnInteligenca;
 	public static Inteligenca belInteligenca;
 	public static Stack<KompaktenZapisIgre> zgodovina;
@@ -27,8 +28,8 @@ public class Vodja {
 	public static void ustvariNovoIgro(Igra novaIgra, Stack<KompaktenZapisIgre> dosedanjaZgodovina) {
 		igra = novaIgra;
 		zgodovina = dosedanjaZgodovina;
-		crnInteligenca = new Inteligenca();
-		belInteligenca = new Inteligenca();
+		crnInteligenca = new Inteligenca(trajanje);
+		belInteligenca = new Inteligenca(trajanje);
 		okno.platno().nastaviIgro(igra);
 		clovekNaVrsti = false;
 		igramo();
