@@ -58,7 +58,7 @@ public class Vodja {
 			}	
 		}
 		
-		else System.out.println(igra.tocke());
+		else okno.platno().prikaziRezultate(); // System.out.println(igra.tocke());
 	}
 
 	public static void igrajRacunalnikovoPotezo() {

@@ -1,4 +1,7 @@
+import javax.swing.JFrame;
+
 import gui.Okno;
+import gui.PlatnoRezultati;
 import inteligenca.Inteligenca;
 import logika.Igra;
 import vodja.Vodja;
@@ -14,6 +17,16 @@ public class Test {
 		okno.setLocationRelativeTo(null);
 		okno.setVisible(true);		// pokaze okno
 		Vodja.okno = okno;
+		
+		/*
+		JFrame rezultatiWIP = new JFrame();
+		PlatnoRezultati platnoRez = new PlatnoRezultati(rezultatiWIP, igra);
+		rezultatiWIP.setTitle("Rezultati");
+		rezultatiWIP.add(platnoRez);
+		rezultatiWIP.pack();				// sestavi okno
+		rezultatiWIP.setLocationRelativeTo(null);
+		rezultatiWIP.setVisible(true);
+		*/
 		
 		/*
 		Inteligenca random = new Inteligenca();

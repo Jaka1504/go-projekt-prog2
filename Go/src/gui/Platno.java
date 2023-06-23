@@ -106,7 +106,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		repaint();
 	}
 	
-	private double svetlost(Color barva) {
+	private static double svetlost(Color barva) {
 		// Source: https://www.nbdtech.com/Blog/archive/2008/04/27/calculating-the-perceived-brightness-of-a-color.aspx
 		int r = barva.getRed();
 		int g = barva.getGreen();
@@ -241,7 +241,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 					g2,
 					metrikaFontVelik
 					);
-			this.narisiZeton(
+			narisiZeton(
 					g,
 					barvaCrnih,
 					zaokrozi(razmikNaMrezi * (-2 + 0.5) + tlx),
@@ -288,7 +288,9 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 				(int) (tly + (visina - 0.5) * razmikNaMrezi),
                 (int) razveljavi.getPreferredSize().getWidth(),
                 (int) pass.getPreferredSize().getHeight());
-		pass.setEnabled(Vodja.clovekNaVrsti); 							// Lahko pritisnes ce je clovek na vrsti, sicer ne
+		if (igra.stanje() != Stanje.V_TEKU) pass.setText("REZULTATI");
+		else pass.setText("PASS");
+		pass.setEnabled(Vodja.clovekNaVrsti || igra.stanje() != Stanje.V_TEKU); 							// Lahko pritisnes ce je clovek na vrsti, sicer ne
 		this.add(pass);
 		
 		// Gumb RAZVELJAVI
@@ -409,7 +411,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		g.drawString(text, tlxTeksta, tlyTeksta + metrika.getAscent());
 	}
 	
-	private void narisiZeton(Graphics g, Color barva, int x, int y, int premer) {
+	public static void narisiZeton(Graphics g, Color barva, int x, int y, int premer) {
 		int xZetona = x - premer / 2;
 		int yZetona = y - premer / 2;
 		g.setColor(barva);
@@ -447,41 +449,16 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		g.drawLine(tlx + polmerUkrivljanja, tly + visina, tlx + sirina - polmerUkrivljanja, tly + visina);
 	}
 	
-	/*
-	public void posodobiNapis(String text) {
-		napis.setText(text);
-		this.repaint();
+	public void prikaziRezultate() {
+		JFrame oknoRezultati = new JFrame();
+		PlatnoRezultati platnoRez = new PlatnoRezultati(oknoRezultati, igra, barvaCrnih, barvaBelih);
+		oknoRezultati.setTitle("Rezultati");
+		oknoRezultati.add(platnoRez);
+		oknoRezultati.pack();
+		oknoRezultati.setResizable(false);
+		oknoRezultati.setLocationRelativeTo(this.getParent());
+		oknoRezultati.setVisible(true);
 	}
-	
-	public void posodobiNapis() {
-		String text = "";
-		switch (igra.stanje()) {
-		case ZMAGA_CRNI: 
-			text = "Zmagal je črni igralec";
-			break;
-		case ZMAGA_BELI:
-			text = "Zmagal je beli igralev";
-			break;
-		case NEODLOCENO:
-			text += "Neodločeno";
-			break;
-		case V_TEKU:
-			switch (igra.naPotezi()) {
-			case BELI:
-				text = "Na potezi je beli igralec";
-				break;
-			case CRNI:
-				text = "Na potezi je črni igralec";
-				break;
-			default:
-				break;
-			}
-		}
-		napis.setText(text);
-		this.repaint();
-	}
-	
-	*/
 	
 	public void posodobiNapis(String text) {
 		napis = text;
@@ -522,7 +499,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		this.repaint();
 	}
 	
-	private Color barvaRoba(Color barva) {
+	private static Color barvaRoba(Color barva) {
 		return (svetlost(barva) > 100.0) ? barva.darker() : barva.brighter().brighter();
 	}
 	
@@ -588,7 +565,10 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == pass) {
-			if (Vodja.clovekNaVrsti) {
+			if (igra.stanje() != Stanje.V_TEKU) {		// Tedaj piše "REZULTATI"
+				prikaziRezultate();
+			}
+			else if (Vodja.clovekNaVrsti) {				// Tedaj piše "PASS"
 				Poteza poteza = Koordinate.PASS.poteza();
 				Vodja.igrajClovekovoPotezo(poteza);
 			}

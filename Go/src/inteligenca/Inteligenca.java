@@ -121,15 +121,14 @@ public class Inteligenca extends KdoIgra{
 			prejsnjaOdlocitev = 
 					(najboljsiOtrok.steviloObiskov >= passOtrok.steviloObiskov) ? 
 							najboljsiOtrok.igra.zadnjaPoteza() : Koordinate.PASS;
+			
+			// Če izgubljamo, dovolimo pass samo dokaj pozno v igri 
+			if (MCTSVozlisce.verjetnostZmage(korenDrevesa.igra) <= 0.5) {
+				if (!lateGame)
+					prejsnjaOdlocitev = najboljsiOtrok.igra.zadnjaPoteza();
+			}
+		
 		}
-		
-		// Če izgubljamo, dovolimo pass samo dokaj pozno v igri 
-		if (MCTSVozlisce.verjetnostZmage(korenDrevesa.igra) <= 0.5) {
-			if (!lateGame)
-				prejsnjaOdlocitev = najboljsiOtrok.igra.zadnjaPoteza();
-		}
-		
-		
 		
 		System.out.print("Na potezi: ");
 		System.out.println((igra.naPotezi() == BarvaIgralca.CRNI) ? "ČRNI" : "BELI");

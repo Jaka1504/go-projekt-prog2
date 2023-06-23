@@ -618,7 +618,7 @@ public class Igra {
 		}
 		
 		// Prištejemo število ujetnikov
-		int ujetiZetoni = (barva == BarvaIgralca.CRNI) ? steviloCrnihUjetnikov : steviloBelihUjetnikov;
+		int ujetiZetoni = (barva == BarvaIgralca.CRNI) ? steviloBelihUjetnikov : steviloCrnihUjetnikov;
 		
 		return new Rezultat(postavljeniZetoni, osvojenoOzemlje, ujetiZetoni);
 	}
