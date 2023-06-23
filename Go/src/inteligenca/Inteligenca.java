@@ -38,7 +38,6 @@ public class Inteligenca extends KdoIgra{
 	
 	public Poteza izberiPotezo(Igra igra) {
 		// Poišče najustreznejšo potezo za dano igro
-		
 		return MCTSAlgoritem(igra);
 	}
 
@@ -102,11 +101,6 @@ public class Inteligenca extends KdoIgra{
 			}
 		}
 		
-		/*
-		System.out.println(korenDrevesa.otroci.size());
-		System.out.println(korenDrevesa.igra.sirina() * korenDrevesa.igra.visina() * 0.2);
-		*/
-		
 		// Late Game: če lahko igra le v 1/5 polj, ki jih je imela tabela na zacetku. Takrat dovolimo "predajo"
 		boolean lateGame = (korenDrevesa.otroci.size() < korenDrevesa.igra.sirina() * korenDrevesa.igra.visina() * 0.2);
 		
@@ -149,35 +143,11 @@ public class Inteligenca extends KdoIgra{
 	}
 	
 	public void MCTSRun(MCTSVozlisce koren) {
-		// DEBUG
-		/*
-		if (koren.stars == null) {
-			System.out.println("=======================================================================================================================================================================================================================================================================================================================================================================================================================================================================");
-			for (MCTSVozlisce otrok : koren.otroci.values()) {
-				if (otrok != null) {
-					System.out.print(otrok.igra.zadnjaPoteza());
-					System.out.print(" | ");
-				}
-			}
-			System.out.println();
-			for (MCTSVozlisce otrok : koren.otroci.values()) {
-				if (otrok != null) {
-					double display = (double)otrok.steviloObiskov / koren.steviloObiskov;
-					System.out.format("%.3f", display);
-					System.out.print(" | ");
-				}
-			}
-			System.out.println();
-			System.out.println("=======================================================================================================================================================================================================================================================================================================================================================================================================================================================================");
-			System.out.println();
-		}
-		*/
 
 		// Če smo v terminalnem stanju, le posodobimo prednike
 		if (koren.igra.stanje() != Stanje.V_TEKU) {
 			double rezultat = MCTSVozlisce.verjetnostZmage(koren.igra);
-			// if (rezultat != 0.5) rezultat = Math.round(rezultat);
-			// če v dani igri zmaga črni, je trba belemu en nivo višje povedati, da je storil napako
+			// Če v dani igri zmaga črni, je trba belemu en nivo višje povedati, da je storil napako
 			koren.posodobiRezultate(rezultat);
 			return;
 		}
@@ -233,6 +203,4 @@ public class Inteligenca extends KdoIgra{
 			MCTSRun(najboljsiOtrok);
 		}
 	}
-	
-
 }

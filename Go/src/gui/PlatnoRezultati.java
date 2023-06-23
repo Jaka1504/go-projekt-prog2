@@ -1,8 +1,6 @@
 package gui;
 
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -11,14 +9,10 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
 
 import logika.Igra;
 import logika.Igra.BarvaIgralca;
-import logika.Rezultat;
 import vodja.Vodja;
 
 @SuppressWarnings("serial")
@@ -72,15 +66,7 @@ public class PlatnoRezultati extends JPanel implements ActionListener {
 		gumbi.add(Box.createGlue());
 		add(gumbi);
 	}
-	
-	/*
-	@Override
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		g.drawRect(naslovC.getX(), naslovC.getY(), naslovC.getWidth(), naslovC.getHeight());
-	}
-	*/
-	
+		
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == ponovi) {

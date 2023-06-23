@@ -14,15 +14,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import static java.lang.Math.min;
-import static java.lang.Math.max;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 
 import logika.Igra;
 import logika.Igra.Stanje;
@@ -62,7 +57,6 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		barvaZadnjePoteze = new Color(255, 255, 255, 100);
 		barvaOzadja = new Color(210, 166, 121);
 		barvaObmocjaZaUjete = barvaOzadja.darker();
-				// new Color(160, 110, 60);
 		this.addMouseListener(this);
 		
 		setBackground(barvaOzadja);
@@ -76,15 +70,9 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		razveljavi.addActionListener(this);
 		
 		// Napis
-		/*
-		napis = new JLabel();
-		napis.setBackground(new Color(255,255,255,127));
-		napis.setOpaque(true);
-		napis.setHorizontalAlignment(JLabel.CENTER);
-//		napis.setFont(new Font("Serif", Font.PLAIN, 20));
-		*/
 		posodobiNapis("Prični novo igro");
 		
+		// Zapis za prevec ujetih
 		razlikaCrni = "";
 		razlikaBeli = "";
 
@@ -216,8 +204,6 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 		int crnihZaPrikaz = Math.min(maksimalnoZaPrikaz, igra.steviloCrnihUjetnihov());
 		for (int i = 0; i < crnihZaPrikaz; i++) {
 			int ostanek = i % 4;
-			//int xZetona = zaokrozi(razmikNaMrezi * (- ostanek - 2 - 0.3333 + 0.5) + tlx);
-			//int yZetona = zaokrozi(razmikNaMrezi * (0 + (i / 4) - 0.3333 + 0.5) + tly);
 			narisiZeton(
 					g,
 					barvaCrnih,
@@ -290,7 +276,8 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
                 (int) pass.getPreferredSize().getHeight());
 		if (igra.stanje() != Stanje.V_TEKU) pass.setText("REZULTATI");
 		else pass.setText("PASS");
-		pass.setEnabled(Vodja.clovekNaVrsti || igra.stanje() != Stanje.V_TEKU); 							// Lahko pritisnes ce je clovek na vrsti, sicer ne
+		// Lahko pritisnes ce je clovek na vrsti, sicer ne
+		pass.setEnabled(Vodja.clovekNaVrsti || igra.stanje() != Stanje.V_TEKU);
 		this.add(pass);
 		
 		// Gumb RAZVELJAVI
@@ -349,44 +336,6 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 					premer);
 			
 		}
-		
-		
-		/*
-		napis.setBounds(
-				(int) (tlx),
-				(int) (tly - 0.5 * razmikNaMrezi - napis.getPreferredSize().getHeight()),
-                (int) (sirina - 1) * razmikNaMrezi,
-                (int) napis.getPreferredSize().getHeight());
-		
-		
-		napis.setBorder(new EmptyBorder(
-				5,
-				(int) ((sirina * razmikNaMrezi - napis.getPreferredSize().getWidth()) / 2.0),
-				5,
-				(int) ((sirina * razmikNaMrezi - napis.getPreferredSize().getWidth()) / 2.0)));//top,left,bottom,right
-		
-		if (this.igra == null) {
-			napis.setText("Prični novo igro");
-		}
-		else {
-			switch (igra.stanje()) {
-				case ZMAGA_CRNI:
-					System.out.println("Igra je končana");
-					napis.setText("Zmagal je črni");
-				case ZMAGA_BELI:
-					napis.setText("Zmagal je beli");
-				case V_TEKU:
-					napis.setText("V teku");
-			}
-		}
-		*/
-		
-		// napis.setFont(new Font("Serif", Font.PLAIN, (int)(0.7 * razmikNaMrezi)));
-		
-		// this.add(napis);
-		
-		// DEBUG:
-		// System.out.println(igra);
 	}
 	
 	private int zaokrozi(double x) {
@@ -450,6 +399,7 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 	}
 	
 	public void prikaziRezultate() {
+		// Odpre okno z rezultati
 		JFrame oknoRezultati = new JFrame();
 		PlatnoRezultati platnoRez = new PlatnoRezultati(oknoRezultati, igra, barvaCrnih, barvaBelih);
 		oknoRezultati.setTitle("Rezultati");
@@ -535,8 +485,8 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 			int tlx = getTlx();
 			int tly = getTly();
 			
-			double x = x_ - tlx + 0.5 * razmikNaMrezi; 			//To bo od 0 do (sirina - 1) * razmikNaMreži
-			double y = y_ - tly + 0.5 * razmikNaMrezi;			//To bo od 0 do (visina -1) * razmikNaMreži
+			double x = x_ - tlx + 0.5 * razmikNaMrezi; 			// To bo od 0 do (sirina - 1) * razmikNaMreži
+			double y = y_ - tly + 0.5 * razmikNaMrezi;			// To bo od 0 do (visina - 1) * razmikNaMreži
 			if (x >= 0 && x < sirina * razmikNaMrezi && y >= 0 && y < visina * razmikNaMrezi) {
 				int i = (int) (x / razmikNaMrezi);
 				int j = (int) (y / razmikNaMrezi);
@@ -577,5 +527,4 @@ public class Platno extends JPanel implements MouseListener, ActionListener {
 			Vodja.undo();
 		}
 	}
-	
 }

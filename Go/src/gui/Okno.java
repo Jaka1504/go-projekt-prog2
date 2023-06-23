@@ -12,13 +12,10 @@ public class Okno extends JFrame {
 		super();
 		setTitle("Capture Go");
 		platno = new Platno(800, 800);	 	// ustvari v pomnilniku
-		add(platno);				// doda platno na okno
+		add(platno);						// doda platno na okno
 		
-		//menu
-		//menu= new Menu();
 		menu= new Menu(platno);
-		
-	    this.setJMenuBar(menu);  //doda meni na okno
+	    this.setJMenuBar(menu); 			//doda meni na okno
 	    
 		// da se program ustavi ko zapremo okno
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -27,11 +24,5 @@ public class Okno extends JFrame {
 	
 	public Platno platno() {
 		return platno;
-	}
-	
-	public Menu menu() {
-		return menu;
-	}
-	
-	
+	}	
 }

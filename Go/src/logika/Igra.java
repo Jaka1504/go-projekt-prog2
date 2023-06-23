@@ -1,17 +1,11 @@
 package logika;
 
-import java.awt.Color;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Random;
 import java.util.Set;
 
 import splosno.Poteza;
@@ -241,46 +235,6 @@ public class Igra {
 		return sporociloNapake;
 	}
 	
-	/*
-	@Override
-	public String toString() {
-		// Tekstovni prikaz igre za debugganje
-		String prikaz = "";
-		for (int i = 0; i < visina; i++) {
-			for (int j = 0 ; j < sirina; j++) {
-				if (tabela[i][j] == null) prikaz += " #"; else
-				switch(tabela[i][j]) {
-					case BEL:
-						prikaz += " O";
-						break;
-					case CRN:
-						prikaz += " X";
-						break;
-					case PRAZNO:
-						prikaz += " -";
-						break;
-					}
-				}
-			prikaz += "\n";
-			}
-		prikaz += "Na potezi: ";
-		prikaz += (naPotezi == BarvaIgralca.CRNI) ? "črni\n" : "beli\n";
-		prikaz += "Stanje: ";
-		switch (stanje) {
-		case ZMAGA_BELI:
-			prikaz += "zmaga beli";
-			break;
-		case V_TEKU:
-			prikaz += "v teku";
-			break;
-		case ZMAGA_CRNI:
-			prikaz += "zmaga črni";
-			break;
-		}
-		return prikaz;
-	}
-	*/
-	
 	// =================== GLAVNA METODA: odigraj =================== 
 	
 	public boolean odigraj(Poteza poteza) {
@@ -440,6 +394,7 @@ public class Igra {
 	}
 	
 	private Set<Koordinate> preveriCeJeKdoUjet(Koordinate koordinate) {
+		// Vrne množico žetonov, katerih skupine so ujete. Če jih ni, vrne null
 		Polje barvaZaNovZeton = (naPotezi == BarvaIgralca.BELI) ? Polje.BEL : Polje.CRN;
 		boolean igralecNaPoteziUjet = false;
 		boolean drugIgralecUjet = false;
@@ -567,6 +522,7 @@ public class Igra {
 	// =================== Pomožne metode ===================
 	
 	public Koordinate tocke() {
+		// Poračuna končni števili točk obeh igralcev 
 		int crni = 0;
 		int beli = 0;
 		
@@ -599,6 +555,8 @@ public class Igra {
 	}
 	
 	public Rezultat rezultat(BarvaIgralca barva) {
+		// Poračuna rezultat danega igralca in si zapomni, koliko točk je dobil kje
+		
 		// Preštejemo število žetonov (kitajska pravila)
 		int postavljeniZetoni = 0;
 		for (int x = 0 ; x < sirina; x++) {
@@ -675,6 +633,7 @@ public class Igra {
 	}
 	
 	private GrupaZMejo poisciGrupo(Koordinate koordinate) {
+		// Vrne grupo (skupino ali teritorij) danega polja in njeno mejo oz. svobode
 		Polje tip = vrednost(koordinate);
 		Set<Koordinate> grupa = new HashSet<Koordinate>();
 		Set<Koordinate> meja = new HashSet<Koordinate>();

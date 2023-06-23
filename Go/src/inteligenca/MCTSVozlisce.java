@@ -37,6 +37,7 @@ public class MCTSVozlisce {
 	}
 	
 	public double funkcijaIzbiranja() {
+		// Vrne stevilo tock, na podlagi katerega izbiramo pot v drevesu
 		double c = Math.sqrt(2);
 		double delezZmagZaStarsa = 1 - (steviloPricakovanihZmag / steviloObiskov);
 		double faktorZaRazsirjanje = c * Math.sqrt(Math.log(stars.steviloObiskov) / steviloObiskov);
@@ -66,15 +67,11 @@ public class MCTSVozlisce {
 		// Če gledamo za drugega igralca, obrnemo
 		if (hipoteticnaIgra.naPotezi() != igra.naPotezi()) verjetnost = 1 - verjetnost;
 		
-		/*
-		System.out.println(igra.naPotezi());
-		System.out.println(igra.tocke());
-		System.out.println(verjetnost);
-		*/
 		return verjetnost;
 	}
 	
 	public void posodobiRezultate(double novRezultat) {
+		// Posodobi vrednosti navzgor po drevesu
 		BarvaIgralca barvaOtroka = this.igra.naPotezi();
 		MCTSVozlisce vozlisce = this;
 		while (vozlisce != null) {
@@ -92,12 +89,10 @@ public class MCTSVozlisce {
 	}
 	
 	public static double verjetnostZmage(Igra igra ) {
+		// Vrne vrednost med 0 in 1, ki predstavlja, kako prepričan je v to, da bo zmagal
 		Koordinate rezultat = igra.tocke();
 		double razmerjeTock = (double)rezultat.x() / (rezultat.x() + rezultat.y());
 		if (igra.naPotezi() == BarvaIgralca.BELI) razmerjeTock = 1 - razmerjeTock;
-
-		// Ker tedaj gledamo iz perspektive tistega, ki je naredil potezo, ki je vodila do tega polozaja
-		// if (igra.stanje() != Stanje.V_TEKU) razmerjeTock = 1 - razmerjeTock;
 
 		return f(razmerjeTock);
 	}
@@ -110,5 +105,4 @@ public class MCTSVozlisce {
 		double y = c * (x - 0.5);
 		return Math.exp(y) / (1 + Math.exp(y));
 	}
-	
 }

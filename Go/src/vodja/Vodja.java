@@ -1,6 +1,5 @@
 package vodja;
 
-import java.util.EnumMap;
 import java.util.Map;
 import java.util.Stack;
 
@@ -26,6 +25,7 @@ public class Vodja {
 	public static Stack<KompaktenZapisIgre> zgodovina;
 	
 	public static void ustvariNovoIgro(Igra novaIgra, Stack<KompaktenZapisIgre> dosedanjaZgodovina) {
+		// Prikaže dano igro na platnu
 		igra = novaIgra;
 		zgodovina = dosedanjaZgodovina;
 		crnInteligenca = new Inteligenca(trajanje);
@@ -36,6 +36,7 @@ public class Vodja {
 	}
 	
 	public static void ustvariNovoIgro(int sirina, int visina) {
+		// Ustvari novo igro z danimi parametri
 		ustvariNovoIgro(new Igra(sirina, visina), new Stack<KompaktenZapisIgre>());
 	}
 	
@@ -58,10 +59,11 @@ public class Vodja {
 			}	
 		}
 		
-		else okno.platno().prikaziRezultate(); // System.out.println(igra.tocke());
+		else okno.platno().prikaziRezultate();
 	}
 
 	public static void igrajRacunalnikovoPotezo() {
+		// Pokliče računalnik, da naredi potezo
 		Igra zacetnaIgra = igra;
 		SwingWorker<Poteza, Void> worker = new SwingWorker<Poteza, Void> () {
 		
@@ -100,7 +102,7 @@ public class Vodja {
 	public static void undo() {
 		// Vrne igro v prejšnji položaj, pri katerem je bil na vrsti človek
 		if (zgodovina.size() <= 1) return;
-		zgodovina.pop(); // odstani trenutno igro z vrha kupa
+		zgodovina.pop(); 						// odstani trenutno igro z vrha kupa
 		while (!zgodovina.empty()) {
 			KompaktenZapisIgre zeljenaIgra = zgodovina.pop();
 			if (vrstiIgralcev.get(zeljenaIgra.naPotezi()) == VrstaIgralca.CLOVEK) {

@@ -3,14 +3,9 @@ package gui;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -89,11 +84,12 @@ public class PlatnoRezultatEnega extends JPanel {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		
+		// Narišemo žeton:
 		int odmik = 2;
 		int tlx = naslov.getX() + naslov.getWidth() + odmik;
 		int tly = naslov.getY() + odmik;
 		int polmer = (naslov.getHeight() - 2 * odmik) / 2;
-		// g.drawRect(naslov.getX(), naslov.getY(), naslov.getWidth(), naslov.getHeight());
 		if (barvaZetona != null) Platno.narisiZeton(g, barvaZetona, tlx + polmer, tly + polmer, 2 * polmer);
 	}
 }

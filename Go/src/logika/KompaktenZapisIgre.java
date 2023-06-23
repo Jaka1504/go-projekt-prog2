@@ -1,7 +1,5 @@
 package logika;
 
-import java.awt.Color;
-
 import logika.Igra.BarvaIgralca;
 import logika.Igra.Stanje;
 

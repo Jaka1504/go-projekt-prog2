@@ -3,22 +3,14 @@ package gui;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.EnumMap;
 
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-
-import logika.Igra;
-import vodja.Vodja;
-import vodja.Vodja.VrstaIgralca;
-
 
 @SuppressWarnings("serial")
 public class Menu extends JMenuBar implements ActionListener{
@@ -69,7 +61,7 @@ public class Menu extends JMenuBar implements ActionListener{
 			JFrame infoOkno = new JFrame(); 
 			
 			infoOkno.setTitle("Nova igra");
-			// infoOkno.setResizable(false); TODO
+			infoOkno.setResizable(false);
 			PlatnoInfo infoPlatno = new PlatnoInfo(infoOkno);
 			infoOkno.add(infoPlatno);
 			infoOkno.pack();
@@ -78,15 +70,11 @@ public class Menu extends JMenuBar implements ActionListener{
 			infoOkno.setVisible(true);	
 		}
 		else if (e.getSource() == crniZetoni) {
-			// JColorChooser izbiraBarveCrni = new JColorChooser();
 			Color barva = JColorChooser.showDialog(this.getParent(), "Spremeni barvo črnih žetonov", Color.BLACK);
-			//this.igra.nastaviBarvoCrnih(barva);
 			if (barva != null) this.platno.nastaviBarvoCrn(barva);
 		}
 		else if (e.getSource() == beliZetoni) {
-			// JColorChooser izbiraBarveBeli = new JColorChooser();
 			Color barva = JColorChooser.showDialog(this.getParent(), "Spremeni barvo belih žetonov", Color.WHITE);
-			//this.igra.nastaviBarvoBelih(barva);
 			if (barva != null) this.platno.nastaviBarvoBel(barva);
 		}
 
